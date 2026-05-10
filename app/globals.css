@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-body, "Barlow", ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, monospace);
+  --font-heading: var(--font-heading, "Barlow Condensed", ui-sans-serif, sans-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -123,8 +123,82 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
   html {
     @apply font-sans;
   }
 }
+
+/* ── Field operations design tokens ─────────────────────────────────────── */
+:root {
+  --field-bg:          #0A0A0A;
+  --field-surface:     #141414;
+  --field-raised:      #1C1C1C;
+  --field-border:      #2A2A2A;
+  --field-text:        #F0EDE6;
+  --field-muted:       #5A5A5A;
+  --field-orange:      #FF4D00;
+  --field-orange-dim:  #2A1000;
+  --field-green:       #16A34A;
+  --field-green-dim:   #052E16;
+  --field-green-text:  #86EFAC;
+}
+
+.font-heading { font-family: var(--font-heading), ui-sans-serif, sans-serif; }
+.font-mono    { font-family: var(--font-mono),    ui-monospace, monospace; }
+.font-body    { font-family: var(--font-body),    ui-sans-serif, sans-serif; }
+
+/* ── Judge / leaderboard page base ───────────────────────────────────────── */
+.field-page {
+  min-height: 100dvh;
+  background: var(--field-bg);
+  color: var(--field-text);
+  font-family: var(--font-body), ui-sans-serif, sans-serif;
+}
+
+/* ── Route action buttons ────────────────────────────────────────────────── */
+.btn-attempt {
+  display: flex; align-items: center; justify-content: center;
+  height: 64px; border-radius: 10px;
+  background: var(--field-raised);
+  border: 1.5px solid var(--field-border);
+  color: var(--field-text);
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em;
+  transition: background 120ms, border-color 120ms, transform 80ms;
+  cursor: pointer; user-select: none; width: 100%;
+}
+.btn-attempt:active { transform: scale(0.97); background: #252525; }
+.btn-attempt:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-top {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  height: 64px; border-radius: 10px;
+  background: var(--field-orange);
+  border: 1.5px solid var(--field-orange);
+  color: #fff;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.1rem; font-weight: 800; letter-spacing: 0.06em;
+  transition: background 120ms, transform 80ms, box-shadow 120ms;
+  cursor: pointer; user-select: none; width: 100%;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--field-orange) 35%, transparent);
+}
+.btn-top:active { transform: scale(0.97); }
+.btn-top:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+/* ── Topped route card ───────────────────────────────────────────────────── */
+.route-topped {
+  background: var(--field-green-dim);
+  border: 1.5px solid color-mix(in srgb, var(--field-green) 40%, transparent);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── Scoreboard pulse for live leaderboard ───────────────────────────────── */
+@keyframes rank-flash {
+  0%   { background: color-mix(in srgb, var(--field-orange) 15%, transparent); }
+  100% { background: transparent; }
+}
+.rank-updated { animation: rank-flash 0.8s ease-out; }

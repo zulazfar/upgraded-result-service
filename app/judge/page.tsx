@@ -1,28 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface RouteStatus {
   route_id: string; route_name: string; difficulty_points: number
   status: 'pending' | 'in_progress' | 'completed'; attempts: number
   points_awarded: number; category_id: number
 }
-
 interface Climber { climber_id: string; name: string; gender: string; category_name: string; category_id: number }
 interface Me { judgeId: number; judgeName: string }
-
-const STATUS_COLORS = {
-  pending: 'bg-gray-100 border-gray-200',
-  in_progress: 'bg-yellow-50 border-yellow-200',
-  completed: 'bg-green-50 border-green-200',
-}
 
 export default function JudgePage() {
   const [me, setMe] = useState<Me | null>(null)
@@ -31,33 +18,35 @@ export default function JudgePage() {
   const [routes, setRoutes] = useState<RouteStatus[]>([])
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [searching, setSearching] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.json()).then(data => {
-      if (data.judgeId) setMe(data)
-    })
+    fetch('/api/auth/me').then(r => r.json()).then(data => { if (data.judgeId) setMe(data) })
   }, [])
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    setError(''); setClimber(null); setRoutes([])
     if (!climberId.trim()) return
-
-    const res = await fetch(`/api/judge/climber/${climberId.trim()}`)
-    const data = await res.json()
-    if (!res.ok) { setError(data.message); return }
-    setClimber(data)
-
-    if (me) {
-      const rRes = await fetch(`/api/judge/routes/${me.judgeId}/${climberId.trim()}`)
-      const rData = await rRes.json()
-      if (!rRes.ok) { setError(rData.message); return }
-      setRoutes(rData)
+    setError(''); setClimber(null); setRoutes([]); setSearching(true)
+    try {
+      const res = await fetch(`/api/judge/climber/${climberId.trim()}`)
+      const data = await res.json()
+      if (!res.ok) { setError(data.message); return }
+      setClimber(data)
+      if (me) {
+        const rRes = await fetch(`/api/judge/routes/${me.judgeId}/${climberId.trim()}`)
+        const rData = await rRes.json()
+        if (!rRes.ok) { setError(rData.message); return }
+        setRoutes(rData)
+      }
+    } finally {
+      setSearching(false)
     }
   }
 
   async function handleScore(route: RouteStatus, scoreType: 'top' | 'attempt') {
-    if (route.status === 'completed') { toast.error('Already topped.'); return }
+    if (route.status === 'completed') return
     setSubmitting(route.route_id)
     try {
       const res = await fetch('/api/judge/record', {
@@ -73,9 +62,11 @@ export default function JudgePage() {
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.message); return }
-      toast.success(scoreType === 'top' ? `Topped! ${data.result?.points_awarded} pts` : 'Attempt recorded.')
-
-      // Refresh routes
+      if (scoreType === 'top') {
+        toast.success(`TOPPED — ${data.result?.points_awarded ?? ''}pts`)
+      } else {
+        toast.info('Attempt recorded')
+      }
       const rRes = await fetch(`/api/judge/routes/${me!.judgeId}/${climber!.climber_id}`)
       setRoutes(await rRes.json())
     } finally {
@@ -83,71 +74,187 @@ export default function JudgePage() {
     }
   }
 
+  function handleClear() {
+    setClimber(null); setRoutes([]); setError(''); setClimberId('')
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }
+
+  const allDone = routes.length > 0 && routes.every(r => r.status === 'completed')
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Score Entry</h1>
-        {me && <p className="text-sm text-muted-foreground mt-1">Logged in as {me.judgeName}</p>}
+    <div className="field-page">
+      {/* ── Top bar ─────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--field-border)', background: 'var(--field-surface)' }}>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-1.5 h-5 rounded-sm" style={{ background: 'var(--field-orange)' }} />
+          <span className="font-heading font-bold text-lg tracking-widest uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.14em' }}>Score Entry</span>
+        </div>
+        {me && (
+          <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+            {me.judgeName.toUpperCase()}
+          </span>
+        )}
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <Input
-          placeholder="Enter Climber ID…"
-          value={climberId}
-          onChange={e => setClimberId(e.target.value)}
-          className="max-w-xs"
-        />
-        <Button type="submit">Find</Button>
-      </form>
+      <div className="px-4 py-5 space-y-5 max-w-lg mx-auto">
+        {/* ── Climber Search ─────────────────────────────────────────────── */}
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            ref={inputRef}
+            value={climberId}
+            onChange={e => setClimberId(e.target.value)}
+            placeholder="CLIMBER ID"
+            autoFocus
+            className="flex-1 rounded-xl px-4 py-4 text-base uppercase outline-none transition-all"
+            style={{
+              background: 'var(--field-surface)',
+              border: '1.5px solid var(--field-border)',
+              color: 'var(--field-text)',
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '0.1em',
+              fontSize: '1rem',
+            }}
+            onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
+            onBlur={e => e.target.style.borderColor = 'var(--field-border)'}
+          />
+          <button
+            type="submit"
+            disabled={searching}
+            className="rounded-xl px-5 font-heading font-bold tracking-wider uppercase transition-all"
+            style={{
+              background: 'var(--field-orange)',
+              color: '#fff',
+              border: 'none',
+              fontSize: '0.9rem',
+              letterSpacing: '0.1em',
+              minWidth: '72px',
+              cursor: searching ? 'not-allowed' : 'pointer',
+              opacity: searching ? 0.6 : 1,
+            }}
+          >
+            {searching ? '…' : 'FIND'}
+          </button>
+        </form>
 
-      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+        {/* ── Error ──────────────────────────────────────────────────────── */}
+        {error && (
+          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#2A0A0A', border: '1px solid #5A1A1A', color: '#FCA5A5', fontFamily: 'var(--font-mono)' }}>
+            ✕ {error}
+          </div>
+        )}
 
-      {climber && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{climber.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-0.5">
-            <p>ID: {climber.climber_id}</p>
-            <p>Category: {climber.category_name} · {climber.gender}</p>
-          </CardContent>
-        </Card>
-      )}
+        {/* ── Climber Card ───────────────────────────────────────────────── */}
+        {climber && (
+          <div className="rounded-xl px-5 py-4" style={{ background: 'var(--field-surface)', border: '1.5px solid var(--field-border)' }}>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="font-heading font-bold text-2xl leading-tight" style={{ color: 'var(--field-text)', letterSpacing: '0.02em' }}>
+                  {climber.name.toUpperCase()}
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.climber_id}</span>
+                  <span style={{ color: 'var(--field-border)' }}>·</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.category_name.toUpperCase()} · {climber.gender.toUpperCase()}</span>
+                </div>
+              </div>
+              <button onClick={handleClear} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                style={{ background: 'var(--field-raised)', color: 'var(--field-muted)', border: '1px solid var(--field-border)', fontFamily: 'var(--font-mono)', cursor: 'pointer' }}>
+                CLEAR
+              </button>
+            </div>
+          </div>
+        )}
 
-      {routes.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Your Routes</h2>
-          <div className="grid gap-3">
-            {routes.map(route => (
-              <div key={route.route_id} className={`border rounded-lg p-4 ${STATUS_COLORS[route.status]}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <span className="font-medium">Route {route.route_id}</span>
-                    {route.route_name && <span className="text-muted-foreground ml-1">— {route.route_name}</span>}
-                    <span className="text-xs text-muted-foreground ml-2">({route.difficulty_points} pts)</span>
+        {/* ── All done banner ────────────────────────────────────────────── */}
+        {allDone && (
+          <div className="rounded-xl px-5 py-4 text-center" style={{ background: 'var(--field-green-dim)', border: '1.5px solid color-mix(in srgb, var(--field-green) 50%, transparent)' }}>
+            <div className="font-heading font-bold text-xl" style={{ color: 'var(--field-green-text)', letterSpacing: '0.08em' }}>
+              ✓ ALL ROUTES COMPLETE
+            </div>
+            <button onClick={handleClear} className="mt-3 px-6 py-2 rounded-lg font-heading font-bold text-sm tracking-wider uppercase transition-all"
+              style={{ background: 'var(--field-orange)', color: '#fff', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}>
+              NEXT CLIMBER
+            </button>
+          </div>
+        )}
+
+        {/* ── Route Cards ────────────────────────────────────────────────── */}
+        {routes.length > 0 && !allDone && (
+          <div className="space-y-3">
+            <div className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+              YOUR ROUTES
+            </div>
+
+            {routes.map(route => {
+              const isSubmitting = submitting === route.route_id
+
+              if (route.status === 'completed') {
+                return (
+                  <div key={route.route_id} className="route-topped">
+                    <div>
+                      <div className="font-heading font-bold text-sm" style={{ color: 'var(--field-green-text)', letterSpacing: '0.06em' }}>
+                        ✓ TOPPED — {route.points_awarded}pts
+                      </div>
+                      <div className="text-xs mt-0.5" style={{ color: 'color-mix(in srgb, var(--field-green-text) 60%, transparent)', fontFamily: 'var(--font-mono)' }}>
+                        Route {route.route_id}{route.route_name ? ` — ${route.route_name}` : ''}
+                      </div>
+                    </div>
+                    <div className="text-2xl">✓</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {route.attempts > 0 && <span className="text-xs text-muted-foreground">{route.attempts} attempt{route.attempts !== 1 ? 's' : ''}</span>}
-                    <Badge variant={route.status === 'completed' ? 'default' : route.status === 'in_progress' ? 'secondary' : 'outline'}>
-                      {route.status === 'completed' ? `✓ Topped (${route.points_awarded}pts)` : route.status === 'in_progress' ? 'In progress' : 'Pending'}
-                    </Badge>
+                )
+              }
+
+              return (
+                <div key={route.route_id} className="rounded-xl p-4 space-y-3"
+                  style={{ background: 'var(--field-surface)', border: `1.5px solid ${route.status === 'in_progress' ? 'color-mix(in srgb, var(--field-orange) 50%, transparent)' : 'var(--field-border)'}` }}>
+
+                  {/* Route header */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-heading font-bold text-lg" style={{ color: 'var(--field-text)', letterSpacing: '0.04em' }}>
+                        ROUTE {route.route_id}
+                      </span>
+                      {route.route_name && (
+                        <span className="text-sm ml-2" style={{ color: 'var(--field-muted)' }}>
+                          {route.route_name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {route.attempts > 0 && (
+                        <span className="text-sm font-medium" style={{ color: 'var(--field-orange)', fontFamily: 'var(--font-mono)' }}>
+                          {route.attempts} ATT
+                        </span>
+                      )}
+                      <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+                        {route.difficulty_points}pts
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      className="btn-attempt"
+                      disabled={isSubmitting}
+                      onClick={() => handleScore(route, 'attempt')}
+                    >
+                      {isSubmitting ? '…' : 'ATTEMPT'}
+                    </button>
+                    <button
+                      className="btn-top"
+                      disabled={isSubmitting}
+                      onClick={() => handleScore(route, 'top')}
+                    >
+                      {isSubmitting ? '…' : <><span>TOP</span><span>✓</span></>}
+                    </button>
                   </div>
                 </div>
-                {route.status !== 'completed' && (
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" disabled={!!submitting} onClick={() => handleScore(route, 'attempt')}>
-                      {submitting === route.route_id ? '…' : 'Attempt'}
-                    </Button>
-                    <Button size="sm" disabled={!!submitting} onClick={() => handleScore(route, 'top')}>
-                      {submitting === route.route_id ? '…' : 'Top ✓'}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
