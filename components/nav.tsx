@@ -3,15 +3,17 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 interface NavProps {
   links: { href: string; label: string }[]
   title: string
+  settingsHref?: string
 }
 
-export function Nav({ links, title }: NavProps) {
+export function Nav({ links, title, settingsHref }: NavProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -43,7 +45,23 @@ export function Nav({ links, title }: NavProps) {
             ))}
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleLogout}>Logout</Button>
+        <div className="flex items-center gap-1">
+          {settingsHref && (
+            <Link
+              href={settingsHref}
+              className={cn(
+                'p-1.5 rounded-md transition-colors',
+                pathname === settingsHref
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              )}
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </Link>
+          )}
+          <Button variant="ghost" size="sm" onClick={handleLogout}>Logout</Button>
+        </div>
       </div>
     </nav>
   )
