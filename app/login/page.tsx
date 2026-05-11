@@ -30,42 +30,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="field-page flex items-center justify-center px-4">
-      {/* Background grid texture */}
-      <div className="pointer-events-none fixed inset-0 opacity-[0.04]"
-        style={{ backgroundImage: 'linear-gradient(var(--field-border) 1px, transparent 1px), linear-gradient(90deg, var(--field-border) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--field-bg)' }}>
+      <div className="w-full max-w-sm">
 
-      <div className="w-full max-w-sm relative">
-        {/* Brand mark */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="inline-block w-3 h-8 rounded-sm" style={{ background: 'var(--field-orange)' }} />
-            <span className="font-heading text-3xl font-bold tracking-widest uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.2em' }}>
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2.5 mb-2">
+            <span className="inline-block w-3 h-3 rounded-full" style={{ background: 'var(--field-orange)' }} />
+            <span className="font-bold text-2xl tracking-tight" style={{ color: 'var(--field-text)' }}>
               ResultOS
             </span>
           </div>
-          <p className="text-sm" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}>
-            COMPETITION SCORING SYSTEM
-          </p>
+          <p className="text-sm" style={{ color: 'var(--field-muted)' }}>Competition Scoring System</p>
         </div>
 
-        {/* Form card */}
-        <div className="rounded-xl p-6 space-y-4" style={{ background: 'var(--field-surface)', border: '1px solid var(--field-border)' }}>
+        {/* Card */}
+        <div className="rounded-2xl bg-white p-7" style={{ border: '1px solid var(--field-border)', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)' }}>
+          {/* Orange accent bar */}
+          <div className="h-1 rounded-full mb-6" style={{ background: 'var(--field-orange)', width: '32px' }} />
+
+          <h2 className="font-bold text-xl mb-6" style={{ color: 'var(--field-text)' }}>Sign in</h2>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+              <label className="block text-sm font-medium" style={{ color: 'var(--field-text)' }}>
                 Username
               </label>
               <input
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 required autoFocus autoComplete="username"
-                className="w-full rounded-lg px-4 py-3 text-base outline-none transition-all"
+                className="w-full rounded-xl px-4 py-3 text-base outline-none transition-all"
                 style={{
-                  background: 'var(--field-raised)',
+                  background: '#fff',
                   border: '1.5px solid var(--field-border)',
                   color: 'var(--field-text)',
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'inherit',
                 }}
                 onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
                 onBlur={e => e.target.style.borderColor = 'var(--field-border)'}
@@ -73,7 +73,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+              <label className="block text-sm font-medium" style={{ color: 'var(--field-text)' }}>
                 Password
               </label>
               <input
@@ -81,12 +81,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required autoComplete="current-password"
-                className="w-full rounded-lg px-4 py-3 text-base outline-none transition-all"
+                className="w-full rounded-xl px-4 py-3 text-base outline-none transition-all"
                 style={{
-                  background: 'var(--field-raised)',
+                  background: '#fff',
                   border: '1.5px solid var(--field-border)',
                   color: 'var(--field-text)',
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'inherit',
                 }}
                 onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
                 onBlur={e => e.target.style.borderColor = 'var(--field-border)'}
@@ -96,23 +96,22 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg py-3.5 font-heading text-base font-bold tracking-widest uppercase transition-all"
+              className="w-full rounded-xl py-3.5 font-bold text-base transition-all mt-2"
               style={{
                 background: loading ? 'var(--field-raised)' : 'var(--field-orange)',
                 color: loading ? 'var(--field-muted)' : '#fff',
                 border: 'none',
-                letterSpacing: '0.12em',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: loading ? 'none' : '0 0 24px color-mix(in srgb, var(--field-orange) 40%, transparent)',
+                boxShadow: loading ? 'none' : '0 4px 14px color-mix(in srgb, var(--field-orange) 35%, transparent)',
               }}
             >
-              {loading ? 'SIGNING IN…' : 'SIGN IN'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
         </div>
 
-        <p className="text-center mt-6 text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
-          JUDGES → /judge &nbsp;·&nbsp; LEADERBOARD → /leaderboard
+        <p className="text-center mt-6 text-xs" style={{ color: 'var(--field-muted)' }}>
+          Judges → /judge &nbsp;·&nbsp; Leaderboard → /leaderboard
         </p>
       </div>
     </div>

@@ -93,8 +93,8 @@ export default function JudgePage() {
         </div>
         <div className="flex items-center gap-3">
           {me && (
-            <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
-              {me.judgeName.toUpperCase()}
+            <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
+              {me.judgeName}
             </span>
           )}
           <button
@@ -122,8 +122,7 @@ export default function JudgePage() {
               background: 'var(--field-surface)',
               border: '1.5px solid var(--field-border)',
               color: 'var(--field-text)',
-              fontFamily: 'var(--font-mono)',
-              letterSpacing: '0.1em',
+              fontFamily: 'inherit',
               fontSize: '1rem',
             }}
             onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
@@ -150,7 +149,7 @@ export default function JudgePage() {
 
         {/* ── Error ──────────────────────────────────────────────────────── */}
         {error && (
-          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#2A0A0A', border: '1px solid #5A1A1A', color: '#FCA5A5', fontFamily: 'var(--font-mono)' }}>
+          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
             ✕ {error}
           </div>
         )}
@@ -164,9 +163,9 @@ export default function JudgePage() {
                   {climber.name.toUpperCase()}
                 </div>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.climber_id}</span>
+                  <span className="text-xs font-mono" style={{ color: 'var(--field-muted)' }}>{climber.climber_id}</span>
                   <span style={{ color: 'var(--field-border)' }}>·</span>
-                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.category_name.toUpperCase()} · {climber.gender.toUpperCase()}</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>{climber.category_name} · {climber.gender}</span>
                 </div>
               </div>
               <button onClick={handleClear} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
@@ -193,8 +192,8 @@ export default function JudgePage() {
         {/* ── Route Cards ────────────────────────────────────────────────── */}
         {routes.length > 0 && !allDone && (
           <div className="space-y-3">
-            <div className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
-              YOUR ROUTES
+            <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: 'var(--field-muted)' }}>
+              Your Routes
             </div>
 
             {routes.map(route => {
@@ -234,11 +233,11 @@ export default function JudgePage() {
                     </div>
                     <div className="flex items-center gap-3">
                       {route.attempts > 0 && (
-                        <span className="text-sm font-medium" style={{ color: 'var(--field-orange)', fontFamily: 'var(--font-mono)' }}>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--field-orange)' }}>
                           {route.attempts} ATT
                         </span>
                       )}
-                      <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+                      <span className="text-xs" style={{ color: 'var(--field-muted)' }}>
                         {route.difficulty_points}pts
                       </span>
                     </div>

@@ -115,7 +115,7 @@ export default function FinalsJudgePage() {
 
         {/* Error */}
         {error && (
-          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#2A0A0A', border: '1px solid #5A1A1A', color: '#FCA5A5', fontFamily: 'var(--font-mono)' }}>
+          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
             ✕ {error}
           </div>
         )}
@@ -189,7 +189,7 @@ export default function FinalsJudgePage() {
                 </button>
                 <button disabled={form.is_top} onClick={() => updateForm(route.route_id, 'is_zone', !form.is_zone)}
                   className="rounded-xl py-4 font-heading font-bold text-base uppercase tracking-wider transition-all"
-                  style={{ background: form.is_zone ? '#1E3A5F' : 'var(--field-raised)', border: `1.5px solid ${form.is_zone ? '#3B82F6' : 'var(--field-border)'}`, color: form.is_zone ? '#93C5FD' : 'var(--field-muted)', cursor: form.is_top ? 'not-allowed' : 'pointer', letterSpacing: '0.1em', opacity: form.is_top ? 0.5 : 1 }}>
+                  style={{ background: form.is_zone ? '#EFF6FF' : 'var(--field-raised)', border: `1.5px solid ${form.is_zone ? '#3B82F6' : 'var(--field-border)'}`, color: form.is_zone ? '#2563EB' : 'var(--field-muted)', cursor: form.is_top ? 'not-allowed' : 'pointer', letterSpacing: '0.1em', opacity: form.is_top ? 0.5 : 1 }}>
                   ZONE
                 </button>
               </div>

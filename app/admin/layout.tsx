@@ -14,7 +14,7 @@ const ADMIN_LINKS = [
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin()
   return (
-    <div className="dark min-h-screen" style={{ background: 'var(--field-bg)', fontFamily: 'var(--font-body, Barlow, sans-serif)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--field-bg)' }}>
       <Nav links={ADMIN_LINKS} title="Admin" settingsHref="/admin/settings" />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
     </div>
