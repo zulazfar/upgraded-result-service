@@ -79,7 +79,7 @@ export default function LeaderboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold">Leaderboard</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Leaderboard</h1>
         <div className="flex items-center gap-3">
           <button onClick={handleRefresh} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <RefreshCw className="w-3.5 h-3.5" /> Refresh

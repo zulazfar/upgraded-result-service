@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface RouteStatus {
@@ -12,6 +13,7 @@ interface Climber { climber_id: string; name: string; gender: string; category_n
 interface Me { judgeId: number; judgeName: string }
 
 export default function JudgePage() {
+  const router = useRouter()
   const [me, setMe] = useState<Me | null>(null)
   const [climberId, setClimberId] = useState('')
   const [climber, setClimber] = useState<Climber | null>(null)
@@ -89,11 +91,21 @@ export default function JudgePage() {
           <span className="inline-block w-1.5 h-5 rounded-sm" style={{ background: 'var(--field-orange)' }} />
           <span className="font-heading font-bold text-lg tracking-widest uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.14em' }}>Score Entry</span>
         </div>
-        {me && (
-          <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
-            {me.judgeName.toUpperCase()}
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {me && (
+            <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>
+              {me.judgeName.toUpperCase()}
+            </span>
+          )}
+          <button
+            onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/login') }}
+            className="text-xs px-2 py-1 rounded transition-colors"
+            style={{ color: 'var(--field-muted)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--field-text)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--field-muted)')}>
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="px-4 py-5 space-y-5 max-w-lg mx-auto">

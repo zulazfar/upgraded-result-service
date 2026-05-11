@@ -61,7 +61,7 @@ export default function RoutesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Routes</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Routes</h1>
         <Button onClick={openAdd}>Add Route</Button>
       </div>
 

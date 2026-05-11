@@ -13,16 +13,16 @@ const cards = [
 export default function AdminDashboard() {
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="font-heading text-3xl font-bold mb-6 tracking-wide uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Dashboard</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map(card => (
           <Link key={card.href} href={card.href}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <Card className="h-full transition-all cursor-pointer hover:border-[var(--field-orange)] hover:shadow-[0_0_16px_color-mix(in_srgb,var(--field-orange)_12%,transparent)]" style={{ background: 'var(--field-surface)', border: '1px solid var(--field-border)' }}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">{card.title}</CardTitle>
+                <CardTitle className="text-base font-heading font-bold tracking-widest uppercase" style={{ fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)', letterSpacing: '0.1em', color: 'var(--field-text)' }}>{card.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{card.desc}</p>
+                <p className="text-sm" style={{ color: 'var(--field-muted)' }}>{card.desc}</p>
               </CardContent>
             </Card>
           </Link>

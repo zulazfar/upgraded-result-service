@@ -49,7 +49,7 @@ export default function FinalsAdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Finals Management</h1>
+      <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Finals Management</h1>
       <Tabs defaultValue="climbers">
         <TabsList>
           <TabsTrigger value="climbers">Finalists</TabsTrigger>
