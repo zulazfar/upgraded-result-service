@@ -189,7 +189,7 @@ export default function FinalsJudgePage() {
                 </button>
                 <button disabled={form.is_top} onClick={() => updateForm(route.route_id, 'is_zone', !form.is_zone)}
                   className="rounded-xl py-4 font-heading font-bold text-base uppercase tracking-wider transition-all"
-                  style={{ background: form.is_zone ? '#EFF6FF' : 'var(--field-raised)', border: `1.5px solid ${form.is_zone ? '#3B82F6' : 'var(--field-border)'}`, color: form.is_zone ? '#2563EB' : 'var(--field-muted)', cursor: form.is_top ? 'not-allowed' : 'pointer', letterSpacing: '0.1em', opacity: form.is_top ? 0.5 : 1 }}>
+                  style={{ background: form.is_zone ? '#F0FDFA' : 'var(--field-raised)', border: `1.5px solid ${form.is_zone ? '#0D9488' : 'var(--field-border)'}`, color: form.is_zone ? '#0D9488' : 'var(--field-muted)', cursor: form.is_top ? 'not-allowed' : 'pointer', letterSpacing: '0.1em', opacity: form.is_top ? 0.5 : 1 }}>
                   ZONE
                 </button>
               </div>

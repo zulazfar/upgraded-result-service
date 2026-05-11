@@ -57,32 +57,32 @@
   --card-foreground:       #111827;
   --popover:               #ffffff;
   --popover-foreground:    #111827;
-  --primary:               #F97316;
+  --primary:               #2563EB;
   --primary-foreground:    #ffffff;
   --secondary:             #F3F4F6;
   --secondary-foreground:  #111827;
   --muted:                 #F3F4F6;
   --muted-foreground:      #6B7280;
-  --accent:                #FFF7ED;
-  --accent-foreground:     #C2410C;
+  --accent:                #EFF6FF;
+  --accent-foreground:     #1D4ED8;
   --destructive:           #EF4444;
   --border:                #E5E7EB;
   --input:                 #F3F4F6;
-  --ring:                  #F97316;
-  --chart-1:               #F97316;
-  --chart-2:               #3B82F6;
+  --ring:                  #2563EB;
+  --chart-1:               #2563EB;
+  --chart-2:               #F97316;
   --chart-3:               #22C55E;
   --chart-4:               #A855F7;
   --chart-5:               #EF4444;
   --radius:                0.625rem;
   --sidebar:               #F8F9FA;
   --sidebar-foreground:    #111827;
-  --sidebar-primary:       #F97316;
+  --sidebar-primary:       #2563EB;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent:        #F3F4F6;
   --sidebar-accent-foreground: #111827;
   --sidebar-border:        #E5E7EB;
-  --sidebar-ring:          #F97316;
+  --sidebar-ring:          #2563EB;
 
   /* ── Field / judge design tokens — light sports ──────────────────────── */
   --field-bg:          #F8F9FA;
@@ -91,8 +91,8 @@
   --field-border:      #E5E7EB;
   --field-text:        #111827;
   --field-muted:       #9CA3AF;
-  --field-orange:      #F97316;
-  --field-orange-dim:  #FFF7ED;
+  --field-orange:      #2563EB;
+  --field-orange-dim:  #EFF6FF;
   --field-green:       #16A34A;
   --field-green-dim:   #F0FDF4;
   --field-green-text:  #15803D;
@@ -152,7 +152,7 @@
   cursor: pointer; user-select: none; width: 100%;
   box-shadow: 0 4px 16px color-mix(in srgb, var(--field-orange) 35%, transparent);
 }
-.btn-top:hover  { background: #EA6C09; box-shadow: 0 4px 20px color-mix(in srgb, var(--field-orange) 50%, transparent); }
+.btn-top:hover  { background: #1D4ED8; box-shadow: 0 4px 20px color-mix(in srgb, var(--field-orange) 50%, transparent); }
 .btn-top:active { transform: scale(0.97); }
 .btn-top:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
