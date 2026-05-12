@@ -67,7 +67,7 @@ export default function FinalsJudgePage() {
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.message); return }
-      toast.success(`RECORDED — ${data.score}pts`)
+      toast.success(`Recorded — ${data.score}pts`)
       setSubmitted(s => new Set(s).add(String(routeId)))
     } finally {
       setSubmitting(null)
@@ -83,77 +83,150 @@ export default function FinalsJudgePage() {
 
   return (
     <div className="field-page">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--field-border)', background: 'var(--field-surface)' }}>
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-1.5 h-5 rounded-sm" style={{ background: 'var(--field-orange)' }} />
-          <span className="font-heading font-bold text-lg tracking-widest uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.14em' }}>Finals Scoring</span>
+
+      {/* ── Top bar ───────────────────────────────────────────────────── */}
+      <div style={{
+        background: '#fff',
+        boxShadow: '0 1px 0 rgba(17,24,39,0.06), 0 4px 16px rgba(17,24,39,0.04)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+      }}>
+        <div className="flex items-center justify-between px-4" style={{ height: '52px' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-6 h-6 rounded-md"
+              style={{ background: 'var(--field-orange)', boxShadow: '0 2px 6px rgba(37,99,235,0.3)' }}>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                <path d="M2 10 L6 2 L10 10" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="font-bold text-sm" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+              Finals Scoring
+            </span>
+          </div>
+          <span className="text-xs font-bold px-3 py-1.5 rounded-full"
+            style={{
+              background: 'var(--field-orange-dim)',
+              color: 'var(--field-orange)',
+              letterSpacing: '0.04em',
+            }}>
+            FINALS
+          </span>
         </div>
-        <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: 'var(--field-orange-dim)', color: 'var(--field-orange)', fontFamily: 'var(--font-mono)' }}>FINALS</span>
       </div>
 
-      <div className="px-4 py-5 space-y-5 max-w-lg mx-auto">
-        {/* Search */}
+      <div className="px-4 py-5 space-y-4 max-w-lg mx-auto">
+
+        {/* ── Search ─────────────────────────────────────────────────── */}
         <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            ref={inputRef}
-            value={climberId}
-            onChange={e => setClimberId(e.target.value)}
-            placeholder="CLIMBER ID"
-            autoFocus
-            className="flex-1 rounded-xl px-4 py-4 text-base uppercase outline-none transition-all"
-            style={{ background: 'var(--field-surface)', border: '1.5px solid var(--field-border)', color: 'var(--field-text)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}
-            onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
-            onBlur={e => e.target.style.borderColor = 'var(--field-border)'}
-          />
+          <div className="flex-1" style={{
+            background: '#fff',
+            borderRadius: '14px',
+            boxShadow: 'var(--shadow-sm)',
+          }}>
+            <input
+              ref={inputRef}
+              value={climberId}
+              onChange={e => setClimberId(e.target.value.toUpperCase())}
+              placeholder="Climber ID"
+              autoFocus
+              className="w-full px-4 py-4 text-base outline-none"
+              style={{
+                background: 'transparent',
+                color: 'var(--field-text)',
+                fontFamily: 'inherit',
+                fontWeight: 500,
+                borderRadius: '14px',
+              }}
+            />
+          </div>
           <button type="submit" disabled={searching}
-            className="rounded-xl px-5 font-heading font-bold tracking-wider uppercase"
-            style={{ background: 'var(--field-orange)', color: '#fff', border: 'none', fontSize: '0.9rem', letterSpacing: '0.1em', minWidth: '72px', cursor: searching ? 'not-allowed' : 'pointer', opacity: searching ? 0.6 : 1 }}>
-            {searching ? '…' : 'FIND'}
+            className="rounded-2xl px-5 font-bold text-sm"
+            style={{
+              background: 'var(--field-orange)',
+              color: '#fff',
+              border: 'none',
+              minWidth: '72px',
+              cursor: searching ? 'not-allowed' : 'pointer',
+              opacity: searching ? 0.6 : 1,
+              boxShadow: searching ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
+              transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}>
+            {searching ? '…' : 'Find'}
           </button>
         </form>
 
-        {/* Error */}
+        {/* ── Error ──────────────────────────────────────────────────── */}
         {error && (
-          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
-            ✕ {error}
+          <div className="rounded-xl px-4 py-3 text-sm font-medium"
+            style={{ background: '#FEF2F2', boxShadow: '0 0 0 1px rgba(239,68,68,0.2)', color: '#DC2626' }}>
+            {error}
           </div>
         )}
 
-        {/* Climber card */}
+        {/* ── Climber card ───────────────────────────────────────────── */}
         {climber && (
-          <div className="rounded-xl px-5 py-4" style={{ background: 'var(--field-surface)', border: '1.5px solid var(--field-border)' }}>
+          <div className="px-5 py-4" style={{
+            background: '#fff',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-sm)',
+          }}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-heading font-bold text-2xl leading-tight" style={{ color: 'var(--field-text)', letterSpacing: '0.02em' }}>
-                  {climber.name.toUpperCase()}
+                <div className="font-bold text-xl leading-tight" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+                  {climber.name}
                 </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.climber_id}</span>
-                  <span style={{ color: 'var(--field-border)' }}>·</span>
-                  <span className="text-xs" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)' }}>{climber.category.toUpperCase()} · {climber.gender.toUpperCase()}</span>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-md"
+                    style={{ background: 'var(--field-raised)', color: 'var(--field-muted)' }}>
+                    {climber.climber_id}
+                  </span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
+                    {climber.category} · {climber.gender}
+                  </span>
                 </div>
               </div>
-              <button onClick={handleClear} className="text-xs px-3 py-1.5 rounded-lg"
-                style={{ background: 'var(--field-raised)', color: 'var(--field-muted)', border: '1px solid var(--field-border)', fontFamily: 'var(--font-mono)', cursor: 'pointer' }}>
-                CLEAR
+              <button onClick={handleClear}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+                style={{
+                  background: 'var(--field-raised)',
+                  color: 'var(--field-muted)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+                }}>
+                Clear
               </button>
             </div>
           </div>
         )}
 
-        {/* All done */}
+        {/* ── All done ───────────────────────────────────────────────── */}
         {allDone && (
-          <div className="rounded-xl px-5 py-4 text-center" style={{ background: 'var(--field-green-dim)', border: '1.5px solid color-mix(in srgb, var(--field-green) 50%, transparent)' }}>
-            <div className="font-heading font-bold text-xl" style={{ color: 'var(--field-green-text)', letterSpacing: '0.08em' }}>✓ ALL ROUTES SUBMITTED</div>
-            <button onClick={handleClear} className="mt-3 px-6 py-2 rounded-lg font-heading font-bold text-sm uppercase"
-              style={{ background: 'var(--field-orange)', color: '#fff', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}>
-              NEXT CLIMBER
+          <div className="px-5 py-5 text-center" style={{
+            background: 'var(--field-green-dim)',
+            borderRadius: '16px',
+            boxShadow: '0 0 0 1.5px rgba(22,163,74,0.2), 0 4px 16px rgba(22,163,74,0.08)',
+          }}>
+            <div className="font-bold text-lg" style={{ color: 'var(--field-green-text)', letterSpacing: '-0.01em' }}>
+              All routes submitted ✓
+            </div>
+            <button onClick={handleClear}
+              className="mt-3 px-6 py-2.5 rounded-xl font-bold text-sm"
+              style={{
+                background: 'var(--field-orange)',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
+                transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+              }}>
+              Next climber →
             </button>
           </div>
         )}
 
-        {/* Route forms */}
+        {/* ── Route forms ────────────────────────────────────────────── */}
         {climber && routes.map(route => {
           const form = forms[route.route_id] || { is_top: false, is_zone: false, attempts_to_top: '1', attempts_to_zone: '1' }
           const done = submitted.has(String(route.route_id))
@@ -163,60 +236,134 @@ export default function FinalsJudgePage() {
             return (
               <div key={route.route_id} className="route-topped">
                 <div>
-                  <div className="font-heading font-bold text-sm" style={{ color: 'var(--field-green-text)', letterSpacing: '0.06em' }}>✓ SUBMITTED</div>
-                  <div className="text-xs mt-0.5" style={{ color: 'color-mix(in srgb, var(--field-green-text) 60%, transparent)', fontFamily: 'var(--font-mono)' }}>
-                    Route {route.route_id}{route.route_name ? ` — ${route.route_name}` : ''}
+                  <div className="font-bold text-sm" style={{ color: 'var(--field-green-text)' }}>
+                    Submitted ✓
+                  </div>
+                  <div className="text-xs mt-0.5 font-medium"
+                    style={{ color: 'color-mix(in srgb, var(--field-green-text) 65%, transparent)' }}>
+                    Route {route.route_id}{route.route_name ? ` · ${route.route_name}` : ''}
                   </div>
                 </div>
-                <div className="text-2xl" style={{ color: 'var(--field-green-text)' }}>✓</div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(22,163,74,0.12)', color: 'var(--field-green-text)', fontSize: '0.9rem' }}>
+                  ✓
+                </div>
               </div>
             )
           }
 
           return (
-            <div key={route.route_id} className="rounded-xl p-4 space-y-4" style={{ background: 'var(--field-surface)', border: '1.5px solid var(--field-border)' }}>
-              <div className="font-heading font-bold text-lg" style={{ color: 'var(--field-text)', letterSpacing: '0.04em' }}>
-                ROUTE {route.route_id}
-                {route.route_name && <span className="text-sm font-normal ml-2" style={{ color: 'var(--field-muted)' }}>{route.route_name}</span>}
+            <div key={route.route_id} className="p-4 space-y-4" style={{
+              background: '#fff',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-sm)',
+            }}>
+              {/* Route name */}
+              <div>
+                <span className="font-bold text-base" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+                  Route {route.route_id}
+                </span>
+                {route.route_name && (
+                  <span className="text-sm ml-2" style={{ color: 'var(--field-muted)' }}>
+                    {route.route_name}
+                  </span>
+                )}
               </div>
 
               {/* TOP / ZONE toggles */}
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => { updateForm(route.route_id, 'is_top', !form.is_top); if (!form.is_top) updateForm(route.route_id, 'is_zone', true) }}
-                  className="rounded-xl py-4 font-heading font-bold text-base uppercase tracking-wider transition-all"
-                  style={{ background: form.is_top ? 'var(--field-orange)' : 'var(--field-raised)', border: `1.5px solid ${form.is_top ? 'var(--field-orange)' : 'var(--field-border)'}`, color: form.is_top ? '#fff' : 'var(--field-muted)', cursor: 'pointer', letterSpacing: '0.1em', boxShadow: form.is_top ? '0 0 16px color-mix(in srgb, var(--field-orange) 35%, transparent)' : 'none' }}>
-                  TOP ✓
+                {/* TOP */}
+                <button
+                  onClick={() => {
+                    updateForm(route.route_id, 'is_top', !form.is_top)
+                    if (!form.is_top) updateForm(route.route_id, 'is_zone', true)
+                  }}
+                  className="rounded-2xl py-4 font-bold text-base"
+                  style={{
+                    background: form.is_top ? 'var(--field-orange)' : '#fff',
+                    border: 'none',
+                    color: form.is_top ? '#fff' : 'var(--field-muted)',
+                    cursor: 'pointer',
+                    boxShadow: form.is_top
+                      ? '0 4px 16px rgba(37,99,235,0.38), 0 1px 4px rgba(37,99,235,0.2)'
+                      : 'var(--shadow-sm)',
+                    transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}>
+                  Top ✓
                 </button>
-                <button disabled={form.is_top} onClick={() => updateForm(route.route_id, 'is_zone', !form.is_zone)}
-                  className="rounded-xl py-4 font-heading font-bold text-base uppercase tracking-wider transition-all"
-                  style={{ background: form.is_zone ? '#F0FDFA' : 'var(--field-raised)', border: `1.5px solid ${form.is_zone ? '#0D9488' : 'var(--field-border)'}`, color: form.is_zone ? '#0D9488' : 'var(--field-muted)', cursor: form.is_top ? 'not-allowed' : 'pointer', letterSpacing: '0.1em', opacity: form.is_top ? 0.5 : 1 }}>
-                  ZONE
+                {/* ZONE */}
+                <button
+                  disabled={form.is_top}
+                  onClick={() => updateForm(route.route_id, 'is_zone', !form.is_zone)}
+                  className="rounded-2xl py-4 font-bold text-base"
+                  style={{
+                    background: form.is_zone ? '#F0FDFA' : '#fff',
+                    border: 'none',
+                    color: form.is_zone ? '#0D9488' : 'var(--field-muted)',
+                    cursor: form.is_top ? 'not-allowed' : 'pointer',
+                    opacity: form.is_top ? 0.45 : 1,
+                    boxShadow: form.is_zone
+                      ? '0 0 0 1.5px rgba(13,148,136,0.35), 0 4px 14px rgba(13,148,136,0.12)'
+                      : 'var(--shadow-sm)',
+                    transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}>
+                  Zone
                 </button>
               </div>
 
               {/* Attempt count inputs */}
               {form.is_top && (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)', minWidth: 100 }}>Att. to Top</span>
-                  <input type="number" min={1} value={form.attempts_to_top}
-                    onChange={e => updateForm(route.route_id, 'attempts_to_top', e.target.value)}
-                    className="w-20 rounded-lg px-3 py-2 text-center outline-none"
-                    style={{ background: 'var(--field-raised)', border: '1.5px solid var(--field-border)', color: 'var(--field-text)', fontFamily: 'var(--font-mono)', fontSize: '1rem' }} />
+                <div className="flex items-center gap-3 px-1">
+                  <span className="text-sm font-medium flex-1" style={{ color: 'var(--field-muted)' }}>
+                    Attempts to top
+                  </span>
+                  <div style={{
+                    background: 'var(--field-raised)',
+                    borderRadius: '10px',
+                    boxShadow: 'inset 0 1px 3px rgba(17,24,39,0.07)',
+                  }}>
+                    <input type="number" min={1} value={form.attempts_to_top}
+                      onChange={e => updateForm(route.route_id, 'attempts_to_top', e.target.value)}
+                      className="w-20 px-3 py-2 text-center outline-none text-sm font-bold"
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--field-text)',
+                        fontFamily: 'inherit',
+                        borderRadius: '10px',
+                      }} />
+                  </div>
                 </div>
               )}
               {form.is_zone && !form.is_top && (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--field-muted)', fontFamily: 'var(--font-mono)', minWidth: 100 }}>Att. to Zone</span>
-                  <input type="number" min={1} value={form.attempts_to_zone}
-                    onChange={e => updateForm(route.route_id, 'attempts_to_zone', e.target.value)}
-                    className="w-20 rounded-lg px-3 py-2 text-center outline-none"
-                    style={{ background: 'var(--field-raised)', border: '1.5px solid var(--field-border)', color: 'var(--field-text)', fontFamily: 'var(--font-mono)', fontSize: '1rem' }} />
+                <div className="flex items-center gap-3 px-1">
+                  <span className="text-sm font-medium flex-1" style={{ color: 'var(--field-muted)' }}>
+                    Attempts to zone
+                  </span>
+                  <div style={{
+                    background: 'var(--field-raised)',
+                    borderRadius: '10px',
+                    boxShadow: 'inset 0 1px 3px rgba(17,24,39,0.07)',
+                  }}>
+                    <input type="number" min={1} value={form.attempts_to_zone}
+                      onChange={e => updateForm(route.route_id, 'attempts_to_zone', e.target.value)}
+                      className="w-20 px-3 py-2 text-center outline-none text-sm font-bold"
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--field-text)',
+                        fontFamily: 'inherit',
+                        borderRadius: '10px',
+                      }} />
+                  </div>
                 </div>
               )}
 
-              <button className="btn-top" disabled={isSubmitting || (!form.is_top && !form.is_zone)} onClick={() => handleSubmit(route.route_id)}
-                style={{ opacity: (!form.is_top && !form.is_zone) ? 0.4 : 1 }}>
-                {isSubmitting ? 'SAVING…' : 'SUBMIT SCORE'}
+              {/* Submit */}
+              <button
+                className="btn-top"
+                disabled={isSubmitting || (!form.is_top && !form.is_zone)}
+                onClick={() => handleSubmit(route.route_id)}
+                style={{ opacity: (!form.is_top && !form.is_zone) ? 0.35 : 1 }}>
+                {isSubmitting ? 'Saving…' : 'Submit score'}
               </button>
             </div>
           )

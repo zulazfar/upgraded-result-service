@@ -50,7 +50,7 @@
 }
 
 :root {
-  /* ── shadcn light / sports palette ──────────────────────────────────── */
+  /* ── shadcn tokens ───────────────────────────────────────────────────── */
   --background:            #ffffff;
   --foreground:            #111827;
   --card:                  #ffffff;
@@ -59,43 +59,54 @@
   --popover-foreground:    #111827;
   --primary:               #2563EB;
   --primary-foreground:    #ffffff;
-  --secondary:             #F3F4F6;
+  --secondary:             #F3F5F8;
   --secondary-foreground:  #111827;
-  --muted:                 #F3F4F6;
+  --muted:                 #F3F5F8;
   --muted-foreground:      #6B7280;
   --accent:                #EFF6FF;
   --accent-foreground:     #1D4ED8;
   --destructive:           #EF4444;
-  --border:                #E5E7EB;
-  --input:                 #F3F4F6;
+  --border:                #E4E7EC;
+  --input:                 #F3F5F8;
   --ring:                  #2563EB;
   --chart-1:               #2563EB;
   --chart-2:               #F97316;
   --chart-3:               #22C55E;
   --chart-4:               #A855F7;
   --chart-5:               #EF4444;
-  --radius:                0.625rem;
-  --sidebar:               #F8F9FA;
+  --radius:                0.75rem;
+  --sidebar:               #F4F6F9;
   --sidebar-foreground:    #111827;
   --sidebar-primary:       #2563EB;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:        #F3F4F6;
+  --sidebar-accent:        #F3F5F8;
   --sidebar-accent-foreground: #111827;
-  --sidebar-border:        #E5E7EB;
+  --sidebar-border:        #E4E7EC;
   --sidebar-ring:          #2563EB;
 
-  /* ── Field / judge design tokens — light sports ──────────────────────── */
-  --field-bg:          #F8F9FA;
+  /* ── Field / judge design tokens ─────────────────────────────────────── */
+  --field-bg:          #EFF1F5;
   --field-surface:     #FFFFFF;
-  --field-raised:      #F3F4F6;
-  --field-border:      #E5E7EB;
+  --field-raised:      #F3F5F8;
+  --field-border:      #E4E7EC;
   --field-text:        #111827;
-  --field-muted:       #9CA3AF;
+  --field-muted:       #6B7280;
   --field-orange:      #2563EB;
   --field-orange-dim:  #EFF6FF;
   --field-green:       #16A34A;
   --field-green-dim:   #F0FDF4;
   --field-green-text:  #15803D;
+
+  /* ── Elevation system (soft structuralism) ───────────────────────────── */
+  --shadow-xs:   0 1px 2px rgba(17,24,39,0.04), 0 0 0 1px rgba(17,24,39,0.04);
+  --shadow-sm:   0 2px 6px rgba(17,24,39,0.05), 0 1px 2px rgba(17,24,39,0.04), 0 0 0 1px rgba(17,24,39,0.03);
+  --shadow-md:   0 4px 14px rgba(17,24,39,0.07), 0 2px 4px rgba(17,24,39,0.04);
+  --shadow-lg:   0 8px 28px rgba(17,24,39,0.09), 0 4px 8px rgba(17,24,39,0.05);
+  --shadow-focus: 0 0 0 3px rgba(37,99,235,0.18);
+
+  /* ── Motion tokens ───────────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap:     cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @layer base {
@@ -105,6 +116,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: "General Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
@@ -116,7 +129,14 @@
 .font-mono    { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .font-body    { font-family: "General Sans", ui-sans-serif, sans-serif; }
 
-/* ── Field-page base (judge + leaderboard) ───────────────────────────────── */
+/* ── Surface utility — shadow-based depth, no raw 1px border ────────────── */
+.surface-card {
+  background: var(--field-surface);
+  box-shadow: var(--shadow-sm);
+  border-radius: 14px;
+}
+
+/* ── Field page base ─────────────────────────────────────────────────────── */
 .field-page {
   min-height: 100dvh;
   background: var(--field-bg);
@@ -124,50 +144,58 @@
   font-family: "General Sans", ui-sans-serif, sans-serif;
 }
 
-/* ── Route action buttons — 64 px tall for easy on-wall tapping ─────────── */
+/* Input focus ring — applied globally inside .field-page ────────────────── */
+.field-page input:focus,
+.field-page input:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+/* ── Route action buttons — 64 px touch target ───────────────────────────── */
 .btn-attempt {
   display: flex; align-items: center; justify-content: center;
-  height: 64px; border-radius: 12px;
-  background: var(--field-raised);
-  border: 1.5px solid var(--field-border);
+  height: 64px; border-radius: 14px;
+  background: var(--field-surface);
+  border: none;
+  box-shadow: var(--shadow-sm);
   color: var(--field-text);
   font-family: "General Sans", sans-serif;
-  font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;
-  transition: background 120ms, border-color 120ms, transform 80ms;
+  font-size: 1.05rem; font-weight: 700; letter-spacing: 0.01em;
+  transition: box-shadow 180ms var(--ease-out-expo), transform 90ms var(--ease-snap), background 150ms;
   cursor: pointer; user-select: none; width: 100%;
 }
-.btn-attempt:hover  { background: #E9EAEC; border-color: #D1D5DB; }
-.btn-attempt:active { transform: scale(0.97); background: #E5E7EB; }
+.btn-attempt:hover  { box-shadow: var(--shadow-md); background: #FAFBFC; }
+.btn-attempt:active { transform: scale(0.97); box-shadow: var(--shadow-xs); background: var(--field-raised); }
 .btn-attempt:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-top {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  height: 64px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  height: 64px; border-radius: 14px;
   background: var(--field-orange);
-  border: 1.5px solid var(--field-orange);
+  border: none;
   color: #fff;
   font-family: "General Sans", sans-serif;
-  font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em;
-  transition: background 120ms, transform 80ms, box-shadow 120ms;
+  font-size: 1.05rem; font-weight: 800; letter-spacing: 0.01em;
+  transition: box-shadow 180ms var(--ease-out-expo), transform 90ms var(--ease-snap), background 150ms;
   cursor: pointer; user-select: none; width: 100%;
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--field-orange) 35%, transparent);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.38), 0 1px 4px rgba(37,99,235,0.2);
 }
-.btn-top:hover  { background: #1D4ED8; box-shadow: 0 4px 20px color-mix(in srgb, var(--field-orange) 50%, transparent); }
-.btn-top:active { transform: scale(0.97); }
+.btn-top:hover  { background: #1D4ED8; box-shadow: 0 6px 22px rgba(37,99,235,0.48), 0 2px 6px rgba(37,99,235,0.28); }
+.btn-top:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
 .btn-top:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
 /* ── Topped / submitted route card ──────────────────────────────────────── */
 .route-topped {
   background: var(--field-green-dim);
-  border: 1.5px solid color-mix(in srgb, var(--field-green) 35%, transparent);
-  border-radius: 12px;
+  box-shadow: 0 0 0 1.5px rgba(22,163,74,0.22), 0 2px 8px rgba(22,163,74,0.07);
+  border-radius: 14px;
   padding: 1rem 1.25rem;
   display: flex; align-items: center; justify-content: space-between;
 }
 
-/* ── Live leaderboard row flash ─────────────────────────────────────────── */
+/* ── Live leaderboard rank flash ─────────────────────────────────────────── */
 @keyframes rank-flash {
-  0%   { background: color-mix(in srgb, var(--field-orange) 12%, transparent); }
+  0%   { background: rgba(37,99,235,0.08); }
   100% { background: transparent; }
 }
-.rank-updated { animation: rank-flash 0.8s ease-out; }
+.rank-updated { animation: rank-flash 0.8s var(--ease-out-expo); }

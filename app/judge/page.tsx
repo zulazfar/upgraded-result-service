@@ -65,7 +65,7 @@ export default function JudgePage() {
       const data = await res.json()
       if (!res.ok) { toast.error(data.message); return }
       if (scoreType === 'top') {
-        toast.success(`TOPPED — ${data.result?.points_awarded ?? ''}pts`)
+        toast.success(`Topped — ${data.result?.points_awarded ?? ''}pts`)
       } else {
         toast.info('Attempt recorded')
       }
@@ -85,116 +85,172 @@ export default function JudgePage() {
 
   return (
     <div className="field-page">
-      {/* ── Top bar ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--field-border)', background: 'var(--field-surface)' }}>
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-1.5 h-5 rounded-sm" style={{ background: 'var(--field-orange)' }} />
-          <span className="font-heading font-bold text-lg tracking-widest uppercase" style={{ color: 'var(--field-text)', letterSpacing: '0.14em' }}>Score Entry</span>
-        </div>
-        <div className="flex items-center gap-3">
-          {me && (
-            <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
-              {me.judgeName}
+
+      {/* ── Top bar ───────────────────────────────────────────────────── */}
+      <div style={{
+        background: '#fff',
+        boxShadow: '0 1px 0 rgba(17,24,39,0.06), 0 4px 16px rgba(17,24,39,0.04)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+      }}>
+        <div className="flex items-center justify-between px-4" style={{ height: '52px' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-6 h-6 rounded-md"
+              style={{ background: 'var(--field-orange)', boxShadow: '0 2px 6px rgba(37,99,235,0.3)' }}>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                <path d="M2 10 L6 2 L10 10" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="font-bold text-sm" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+              Score Entry
             </span>
-          )}
-          <button
-            onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/login') }}
-            className="text-xs px-2 py-1 rounded transition-colors"
-            style={{ color: 'var(--field-muted)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--field-text)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--field-muted)')}>
-            Logout
-          </button>
+          </div>
+          <div className="flex items-center gap-3">
+            {me && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{ background: 'var(--field-raised)', color: 'var(--field-muted)' }}>
+                {me.judgeName}
+              </span>
+            )}
+            <button
+              onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/login') }}
+              className="text-xs px-3 py-1.5 rounded-lg font-medium"
+              style={{
+                color: 'var(--field-muted)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--field-text)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--field-muted)')}>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="px-4 py-5 space-y-5 max-w-lg mx-auto">
-        {/* ── Climber Search ─────────────────────────────────────────────── */}
+      <div className="px-4 py-5 space-y-4 max-w-lg mx-auto">
+
+        {/* ── Search ─────────────────────────────────────────────────── */}
         <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            ref={inputRef}
-            value={climberId}
-            onChange={e => setClimberId(e.target.value)}
-            placeholder="CLIMBER ID"
-            autoFocus
-            className="flex-1 rounded-xl px-4 py-4 text-base uppercase outline-none transition-all"
-            style={{
-              background: 'var(--field-surface)',
-              border: '1.5px solid var(--field-border)',
-              color: 'var(--field-text)',
-              fontFamily: 'inherit',
-              fontSize: '1rem',
-            }}
-            onFocus={e => e.target.style.borderColor = 'var(--field-orange)'}
-            onBlur={e => e.target.style.borderColor = 'var(--field-border)'}
-          />
+          <div className="flex-1" style={{
+            background: '#fff',
+            borderRadius: '14px',
+            boxShadow: 'var(--shadow-sm)',
+          }}>
+            <input
+              ref={inputRef}
+              value={climberId}
+              onChange={e => setClimberId(e.target.value.toUpperCase())}
+              placeholder="Climber ID"
+              autoFocus
+              className="w-full px-4 py-4 text-base outline-none"
+              style={{
+                background: 'transparent',
+                color: 'var(--field-text)',
+                fontFamily: 'inherit',
+                fontWeight: 500,
+                borderRadius: '14px',
+              }}
+            />
+          </div>
           <button
             type="submit"
             disabled={searching}
-            className="rounded-xl px-5 font-heading font-bold tracking-wider uppercase transition-all"
+            className="rounded-2xl px-5 font-bold text-sm"
             style={{
               background: 'var(--field-orange)',
               color: '#fff',
               border: 'none',
-              fontSize: '0.9rem',
-              letterSpacing: '0.1em',
               minWidth: '72px',
               cursor: searching ? 'not-allowed' : 'pointer',
               opacity: searching ? 0.6 : 1,
+              boxShadow: searching ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
+              transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            {searching ? '…' : 'FIND'}
+            {searching ? '…' : 'Find'}
           </button>
         </form>
 
-        {/* ── Error ──────────────────────────────────────────────────────── */}
+        {/* ── Error ──────────────────────────────────────────────────── */}
         {error && (
-          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
-            ✕ {error}
+          <div className="rounded-xl px-4 py-3 text-sm font-medium"
+            style={{ background: '#FEF2F2', border: 'none', boxShadow: '0 0 0 1px rgba(239,68,68,0.2)', color: '#DC2626' }}>
+            {error}
           </div>
         )}
 
-        {/* ── Climber Card ───────────────────────────────────────────────── */}
+        {/* ── Climber card ───────────────────────────────────────────── */}
         {climber && (
-          <div className="rounded-xl px-5 py-4" style={{ background: 'var(--field-surface)', border: '1.5px solid var(--field-border)' }}>
+          <div className="px-5 py-4" style={{
+            background: '#fff',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-sm)',
+          }}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-heading font-bold text-2xl leading-tight" style={{ color: 'var(--field-text)', letterSpacing: '0.02em' }}>
-                  {climber.name.toUpperCase()}
+                <div className="font-bold text-xl leading-tight" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+                  {climber.name}
                 </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs font-mono" style={{ color: 'var(--field-muted)' }}>{climber.climber_id}</span>
-                  <span style={{ color: 'var(--field-border)' }}>·</span>
-                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>{climber.category_name} · {climber.gender}</span>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-md"
+                    style={{ background: 'var(--field-raised)', color: 'var(--field-muted)' }}>
+                    {climber.climber_id}
+                  </span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
+                    {climber.category_name} · {climber.gender}
+                  </span>
                 </div>
               </div>
-              <button onClick={handleClear} className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                style={{ background: 'var(--field-raised)', color: 'var(--field-muted)', border: '1px solid var(--field-border)', fontFamily: 'var(--font-mono)', cursor: 'pointer' }}>
-                CLEAR
+              <button onClick={handleClear}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+                style={{
+                  background: 'var(--field-raised)',
+                  color: 'var(--field-muted)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+                }}>
+                Clear
               </button>
             </div>
           </div>
         )}
 
-        {/* ── All done banner ────────────────────────────────────────────── */}
+        {/* ── All done ───────────────────────────────────────────────── */}
         {allDone && (
-          <div className="rounded-xl px-5 py-4 text-center" style={{ background: 'var(--field-green-dim)', border: '1.5px solid color-mix(in srgb, var(--field-green) 50%, transparent)' }}>
-            <div className="font-heading font-bold text-xl" style={{ color: 'var(--field-green-text)', letterSpacing: '0.08em' }}>
-              ✓ ALL ROUTES COMPLETE
+          <div className="px-5 py-5 text-center" style={{
+            background: 'var(--field-green-dim)',
+            borderRadius: '16px',
+            boxShadow: '0 0 0 1.5px rgba(22,163,74,0.2), 0 4px 16px rgba(22,163,74,0.08)',
+          }}>
+            <div className="font-bold text-lg" style={{ color: 'var(--field-green-text)', letterSpacing: '-0.01em' }}>
+              All routes complete ✓
             </div>
-            <button onClick={handleClear} className="mt-3 px-6 py-2 rounded-lg font-heading font-bold text-sm tracking-wider uppercase transition-all"
-              style={{ background: 'var(--field-orange)', color: '#fff', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}>
-              NEXT CLIMBER
+            <button onClick={handleClear}
+              className="mt-3 px-6 py-2.5 rounded-xl font-bold text-sm"
+              style={{
+                background: 'var(--field-orange)',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
+                transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+              }}>
+              Next climber →
             </button>
           </div>
         )}
 
-        {/* ── Route Cards ────────────────────────────────────────────────── */}
+        {/* ── Route cards ────────────────────────────────────────────── */}
         {routes.length > 0 && !allDone && (
           <div className="space-y-3">
-            <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: 'var(--field-muted)' }}>
-              Your Routes
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-wide px-1" style={{ color: 'var(--field-muted)' }}>
+              Assigned routes
+            </p>
 
             {routes.map(route => {
               const isSubmitting = submitting === route.route_id
@@ -203,41 +259,50 @@ export default function JudgePage() {
                 return (
                   <div key={route.route_id} className="route-topped">
                     <div>
-                      <div className="font-heading font-bold text-sm" style={{ color: 'var(--field-green-text)', letterSpacing: '0.06em' }}>
-                        ✓ TOPPED — {route.points_awarded}pts
+                      <div className="font-bold text-sm" style={{ color: 'var(--field-green-text)' }}>
+                        Topped — {route.points_awarded}pts ✓
                       </div>
-                      <div className="text-xs mt-0.5" style={{ color: 'color-mix(in srgb, var(--field-green-text) 60%, transparent)', fontFamily: 'var(--font-mono)' }}>
-                        Route {route.route_id}{route.route_name ? ` — ${route.route_name}` : ''}
+                      <div className="text-xs mt-0.5 font-medium" style={{ color: 'color-mix(in srgb, var(--field-green-text) 65%, transparent)' }}>
+                        Route {route.route_id}{route.route_name ? ` · ${route.route_name}` : ''}
                       </div>
                     </div>
-                    <div className="text-2xl">✓</div>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(22,163,74,0.12)', color: 'var(--field-green-text)', fontSize: '0.9rem' }}>
+                      ✓
+                    </div>
                   </div>
                 )
               }
 
               return (
-                <div key={route.route_id} className="rounded-xl p-4 space-y-3"
-                  style={{ background: 'var(--field-surface)', border: `1.5px solid ${route.status === 'in_progress' ? 'color-mix(in srgb, var(--field-orange) 50%, transparent)' : 'var(--field-border)'}` }}>
-
+                <div key={route.route_id} className="p-4 space-y-3" style={{
+                  background: '#fff',
+                  borderRadius: '16px',
+                  boxShadow: route.status === 'in_progress'
+                    ? '0 0 0 2px rgba(37,99,235,0.25), 0 4px 16px rgba(37,99,235,0.08)'
+                    : 'var(--shadow-sm)',
+                }}>
                   {/* Route header */}
                   <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-heading font-bold text-lg" style={{ color: 'var(--field-text)', letterSpacing: '0.04em' }}>
-                        ROUTE {route.route_id}
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-bold text-base" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+                        Route {route.route_id}
                       </span>
                       {route.route_name && (
-                        <span className="text-sm ml-2" style={{ color: 'var(--field-muted)' }}>
+                        <span className="text-sm" style={{ color: 'var(--field-muted)' }}>
                           {route.route_name}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {route.attempts > 0 && (
-                        <span className="text-sm font-semibold" style={{ color: 'var(--field-orange)' }}>
-                          {route.attempts} ATT
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                          style={{ background: 'var(--field-orange-dim)', color: 'var(--field-orange)' }}>
+                          {route.attempts} att
                         </span>
                       )}
-                      <span className="text-xs" style={{ color: 'var(--field-muted)' }}>
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                        style={{ background: 'var(--field-raised)', color: 'var(--field-muted)' }}>
                         {route.difficulty_points}pts
                       </span>
                     </div>
@@ -245,19 +310,11 @@ export default function JudgePage() {
 
                   {/* Action buttons */}
                   <div className="grid grid-cols-2 gap-2">
-                    <button
-                      className="btn-attempt"
-                      disabled={isSubmitting}
-                      onClick={() => handleScore(route, 'attempt')}
-                    >
-                      {isSubmitting ? '…' : 'ATTEMPT'}
+                    <button className="btn-attempt" disabled={isSubmitting} onClick={() => handleScore(route, 'attempt')}>
+                      {isSubmitting ? '…' : 'Attempt'}
                     </button>
-                    <button
-                      className="btn-top"
-                      disabled={isSubmitting}
-                      onClick={() => handleScore(route, 'top')}
-                    >
-                      {isSubmitting ? '…' : <><span>TOP</span><span>✓</span></>}
+                    <button className="btn-top" disabled={isSubmitting} onClick={() => handleScore(route, 'top')}>
+                      {isSubmitting ? '…' : <><span>Top</span><span style={{ opacity: 0.8 }}>✓</span></>}
                     </button>
                   </div>
                 </div>
