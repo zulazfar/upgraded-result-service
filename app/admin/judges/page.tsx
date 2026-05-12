@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Plus } from 'lucide-react'
 
 interface Judge { judge_id: number; name: string; username: string; is_superadmin: boolean }
 interface Route { route_id: number; route_name: string; difficulty_points: number; assigned: boolean }
@@ -70,41 +71,102 @@ export default function JudgesPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* ── Page header ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Judges</h1>
-        <Button onClick={openAdd}>Add Judge</Button>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>
+            Admin
+          </p>
+          <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
+            Judges
+          </h1>
+        </div>
+        <button onClick={openAdd}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold"
+          style={{
+            background: 'var(--field-orange)',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
+            transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}>
+          <Plus className="w-4 h-4" strokeWidth={2} />
+          Add Judge
+        </button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow><TableHead>Name</TableHead><TableHead>Username</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Actions</TableHead></TableRow>
-        </TableHeader>
-        <TableBody>
-          {judges.map(j => (
-            <TableRow key={j.judge_id}>
-              <TableCell className="font-medium">{j.name}</TableCell>
-              <TableCell>{j.username}</TableCell>
-              <TableCell><Badge variant={j.is_superadmin ? 'default' : 'secondary'}>{j.is_superadmin ? 'Admin' : 'Judge'}</Badge></TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" onClick={() => openAssign(j)}>Routes</Button>
-                  <Button size="sm" variant="outline" onClick={() => openEdit(j)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(j.judge_id)}>Delete</Button>
-                </div>
-              </TableCell>
+      {/* ── Judges table ─────────────────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+        <Table>
+          <TableHeader>
+            <TableRow style={{ background: 'var(--field-raised)' }}>
+              <TableHead>Name</TableHead>
+              <TableHead>Username</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {judges.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-12 text-sm" style={{ color: 'var(--field-muted)' }}>
+                  No judges found.
+                </TableCell>
+              </TableRow>
+            )}
+            {judges.map(j => (
+              <TableRow key={j.judge_id}>
+                <TableCell className="font-semibold">{j.name}</TableCell>
+                <TableCell className="font-mono text-xs">{j.username}</TableCell>
+                <TableCell>
+                  <Badge variant={j.is_superadmin ? 'default' : 'secondary'}>
+                    {j.is_superadmin ? 'Admin' : 'Judge'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openAssign(j)}>Routes</Button>
+                    <Button size="sm" variant="outline" onClick={() => openEdit(j)}>Edit</Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(j.judge_id)}>Delete</Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
+      {/* ── Add / Edit dialog ─────────────────────────────────────────── */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editing ? 'Edit Judge' : 'Add Judge'}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div><Label>Username</Label><Input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} /></div>
-            <div><Label>{editing ? 'New Password (leave blank to keep)' : 'Password'}</Label><Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} /></div>
-            <div className="flex items-center gap-2"><input type="checkbox" checked={form.is_superadmin} onChange={e => setForm(f => ({ ...f, is_superadmin: e.target.checked }))} id="admin" /><Label htmlFor="admin">Super Admin</Label></div>
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit Judge' : 'Add Judge'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <div>
+              <Label>Name</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Username</Label>
+              <Input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} />
+            </div>
+            <div>
+              <Label>{editing ? 'New Password' : 'Password'} {editing && <span className="text-muted-foreground font-normal">(leave blank to keep)</span>}</Label>
+              <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
+            </div>
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.is_superadmin}
+                onChange={e => setForm(f => ({ ...f, is_superadmin: e.target.checked }))}
+                className="w-4 h-4 rounded accent-blue-600"
+              />
+              <span className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>Super Admin</span>
+            </label>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button onClick={handleSave}>{editing ? 'Update' : 'Add'}</Button>
@@ -113,14 +175,34 @@ export default function JudgesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* ── Route assignment dialog ───────────────────────────────────── */}
       <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
         <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Assign Routes — {assignJudge?.name}</DialogTitle></DialogHeader>
-          <div className="space-y-2">
+          <DialogHeader>
+            <DialogTitle>Assign Routes — {assignJudge?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 pt-1">
+            {routes.length === 0 && (
+              <p className="text-sm py-4 text-center" style={{ color: 'var(--field-muted)' }}>No routes configured yet.</p>
+            )}
             {routes.map(r => (
-              <label key={r.route_id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" checked={selected.has(r.route_id)} onChange={() => toggleRoute(r.route_id)} />
-                <span className="text-sm">Route {r.route_id}{r.route_name ? ` — ${r.route_name}` : ''} <span className="text-muted-foreground">({r.difficulty_points} pts)</span></span>
+              <label key={r.route_id}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer"
+                style={{ transition: 'background 120ms' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--field-raised)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                <input
+                  type="checkbox"
+                  checked={selected.has(r.route_id)}
+                  onChange={() => toggleRoute(r.route_id)}
+                  className="w-4 h-4 rounded accent-blue-600 shrink-0"
+                />
+                <span className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>
+                  Route {r.route_id}{r.route_name ? ` — ${r.route_name}` : ''}
+                </span>
+                <span className="ml-auto text-xs font-medium tabular-nums" style={{ color: 'var(--field-muted)' }}>
+                  {r.difficulty_points} pts
+                </span>
               </label>
             ))}
           </div>

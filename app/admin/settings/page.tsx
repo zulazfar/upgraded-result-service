@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Download, AlertTriangle } from 'lucide-react'
 
 export default function SettingsPage() {
   const [resetOpen, setResetOpen] = useState(false)
@@ -41,43 +41,70 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
+
+      {/* ── Page header ─────────────────────────────────────────────── */}
       <div>
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">Event management and data controls.</p>
+        <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
+          style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>
+          Admin
+        </p>
+        <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
+          Settings
+        </h1>
+        <p className="text-sm mt-1.5" style={{ color: 'var(--field-muted)' }}>
+          Event management and data controls.
+        </p>
       </div>
 
-      {/* Export */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Export Event Data</CardTitle>
-          <CardDescription>
-            Download a full snapshot of the current event — climbers, all results,
-            per-category leaderboards, and finals — as a single Excel file.
-            Do this before resetting for the next event.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button variant="outline" onClick={handleExport}>Export Full Event (.xlsx)</Button>
-        </CardContent>
-      </Card>
+      {/* ── Export card ──────────────────────────────────────────────── */}
+      <div className="p-5 rounded-2xl" style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
+        <h3 className="font-bold text-base mb-1" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+          Export Event Data
+        </h3>
+        <p className="text-sm mb-4" style={{ color: 'var(--field-muted)', lineHeight: 1.6 }}>
+          Download a full snapshot of the current event — climbers, all results,
+          per-category leaderboards, and finals — as a single Excel file.
+          Do this before resetting for the next event.
+        </p>
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold"
+          style={{
+            background: 'var(--field-orange)',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
+            transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}>
+          <Download className="w-4 h-4" strokeWidth={1.75} />
+          Export Full Event (.xlsx)
+        </button>
+      </div>
 
-      {/* Reset */}
-      <Card className="border-destructive/40">
-        <CardHeader>
-          <CardTitle className="text-base text-destructive">Reset Event Data</CardTitle>
-          <CardDescription>
-            Permanently deletes all climbers, routes, results, and finals data.
-            Judge accounts and categories are preserved. Use this between events.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* ── Reset card ───────────────────────────────────────────────── */}
+      <div className="p-5 rounded-2xl" style={{
+        background: '#fff',
+        boxShadow: 'var(--shadow-sm), 0 0 0 1.5px rgba(239,68,68,0.15)',
+      }}>
+        <div className="flex items-start gap-3 mb-1">
+          <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" strokeWidth={1.75} style={{ color: '#EF4444' }} />
+          <h3 className="font-bold text-base" style={{ color: '#DC2626', letterSpacing: '-0.01em' }}>
+            Reset Event Data
+          </h3>
+        </div>
+        <p className="text-sm mb-4 pl-8" style={{ color: 'var(--field-muted)', lineHeight: 1.6 }}>
+          Permanently deletes all climbers, routes, results, and finals data.
+          Judge accounts and categories are preserved. Use this between events.
+        </p>
+        <div className="pl-8">
           <Button variant="destructive" onClick={() => { setConfirmation(''); setResetOpen(true) }}>
             Reset Event Data
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Confirmation dialog */}
+      {/* ── Confirmation dialog ──────────────────────────────────────── */}
       <Dialog open={resetOpen} onOpenChange={open => { setResetOpen(open); if (!open) setConfirmation('') }}>
         <DialogContent>
           <DialogHeader>
@@ -91,7 +118,9 @@ export default function SettingsPage() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label>Type <span className="font-mono font-bold">delete event</span> to confirm</Label>
+              <Label>
+                Type <span className="font-mono font-bold">delete event</span> to confirm
+              </Label>
               <Input
                 className="mt-2"
                 placeholder="delete event"
@@ -99,7 +128,9 @@ export default function SettingsPage() {
                 onChange={e => setConfirmation(e.target.value)}
                 onPaste={e => e.preventDefault()}
               />
-              <p className="text-xs text-muted-foreground mt-1">Copy-paste is disabled — you must type it manually.</p>
+              <p className="text-xs mt-1.5" style={{ color: 'var(--field-muted)' }}>
+                Copy-paste is disabled — you must type it manually.
+              </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setResetOpen(false); setConfirmation('') }}>Cancel</Button>

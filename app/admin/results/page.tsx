@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Label } from '@/components/ui/label'
+import { Search, Download } from 'lucide-react'
 
 interface Result {
   result_id: number; climber_id: string; climber_name: string
@@ -57,55 +58,143 @@ export default function ResultsPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* ── Page header ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase" style={{ letterSpacing: '0.08em', fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)' }}>Results</h1>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>
+            Admin
+          </p>
+          <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
+            Results
+          </h1>
+        </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>Export CSV</Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')}>Export Excel</Button>
+          <button
+            onClick={() => handleExport('csv')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+            style={{
+              background: 'var(--field-raised)',
+              color: 'var(--field-text)',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-xs)',
+              transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}>
+            <Download className="w-4 h-4" strokeWidth={1.75} />
+            CSV
+          </button>
+          <button
+            onClick={() => handleExport('xlsx')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+            style={{
+              background: 'var(--field-raised)',
+              color: 'var(--field-text)',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-xs)',
+              transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}>
+            <Download className="w-4 h-4" strokeWidth={1.75} />
+            Excel
+          </button>
         </div>
       </div>
 
-      <Input placeholder="Search by name or ID…" value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs" />
+      {/* ── Search ───────────────────────────────────────────────────── */}
+      <div className="relative max-w-xs">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+          strokeWidth={1.75} style={{ color: 'var(--field-muted)' }} />
+        <input
+          placeholder="Search by name or ID…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 text-sm rounded-xl outline-none"
+          style={{
+            background: '#fff',
+            boxShadow: 'var(--shadow-xs)',
+            color: 'var(--field-text)',
+            fontFamily: 'inherit',
+            transition: 'box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          onFocus={e => (e.target.style.boxShadow = 'var(--shadow-focus)')}
+          onBlur={e => (e.target.style.boxShadow = 'var(--shadow-xs)')}
+        />
+      </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Climber</TableHead><TableHead>Route</TableHead><TableHead>Category</TableHead>
-            <TableHead>Type</TableHead><TableHead>Attempts</TableHead><TableHead>Points</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filtered.map(r => (
-            <TableRow key={r.result_id}>
-              <TableCell><div className="font-medium">{r.climber_name}</div><div className="text-xs text-muted-foreground">{r.climber_id}</div></TableCell>
-              <TableCell>{r.route_id}</TableCell>
-              <TableCell>{r.category_name}</TableCell>
-              <TableCell><Badge variant={r.is_top ? 'default' : 'secondary'}>{r.score_type}</Badge></TableCell>
-              <TableCell>{r.attempts}</TableCell>
-              <TableCell>{r.points_awarded}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" onClick={() => openEdit(r)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(r.result_id)}>Delete</Button>
-                </div>
-              </TableCell>
+      {/* ── Results table ────────────────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+        <Table>
+          <TableHeader>
+            <TableRow style={{ background: 'var(--field-raised)' }}>
+              <TableHead>Climber</TableHead>
+              <TableHead>Route</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Attempts</TableHead>
+              <TableHead>Points</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-12 text-sm" style={{ color: 'var(--field-muted)' }}>
+                  No results found.
+                </TableCell>
+              </TableRow>
+            )}
+            {filtered.map(r => (
+              <TableRow key={r.result_id}>
+                <TableCell>
+                  <div className="font-semibold">{r.climber_name}</div>
+                  <div className="text-xs font-mono mt-0.5" style={{ color: 'var(--field-muted)' }}>{r.climber_id}</div>
+                </TableCell>
+                <TableCell>{r.route_id}</TableCell>
+                <TableCell style={{ color: 'var(--field-muted)' }}>{r.category_name}</TableCell>
+                <TableCell>
+                  <Badge variant={r.is_top ? 'default' : 'secondary'}>{r.score_type}</Badge>
+                </TableCell>
+                <TableCell className="tabular-nums">{r.attempts}</TableCell>
+                <TableCell className="font-bold tabular-nums" style={{ color: 'var(--field-orange)' }}>{r.points_awarded}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openEdit(r)}>Edit</Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.result_id)}>Delete</Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
+      {/* ── Edit dialog ──────────────────────────────────────────────── */}
       <Dialog open={!!editing} onOpenChange={open => !open && setEditing(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Edit Result — {editing?.climber_name} / Route {editing?.route_id}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Score Type</Label>
+          <DialogHeader>
+            <DialogTitle>Edit Result — {editing?.climber_name} / Route {editing?.route_id}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <div>
+              <Label>Score Type</Label>
               <Select value={form.score_type} onValueChange={v => setForm(f => ({ ...f, score_type: v ?? 'attempt' }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="top">Top</SelectItem><SelectItem value="attempt">Attempt</SelectItem></SelectContent>
+                <SelectTrigger>
+                  <SelectValue>
+                    {form.score_type === 'top' ? 'Top' : 'Attempt'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="top">Top</SelectItem>
+                  <SelectItem value="attempt">Attempt</SelectItem>
+                </SelectContent>
               </Select>
             </div>
-            <div><Label>Attempts</Label><Input type="number" min={1} value={form.attempts} onChange={e => setForm(f => ({ ...f, attempts: e.target.value }))} /></div>
+            <div>
+              <Label>Attempts</Label>
+              <Input type="number" min={1} value={form.attempts} onChange={e => setForm(f => ({ ...f, attempts: e.target.value }))} />
+            </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
               <Button onClick={handleSave}>Update</Button>
