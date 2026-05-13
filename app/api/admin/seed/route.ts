@@ -218,20 +218,10 @@ export async function POST(req: Request) {
         )
       }
 
-      // ── 4. Link every route to every category ────────────────────────────
-      for (const route of ROUTES) {
-        for (const cat of CATEGORIES) {
-          const catId = catMap.get(cat.category_name)
-          if (catId) {
-            await client.query(
-              'INSERT INTO route_category_link (route_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-              [route.route_id, catId]
-            )
-          }
-        }
-      }
-
-      // ── 5. Insert 40 climbers + category assignments ─────────────────────
+      // ── 4. Insert 40 climbers + category assignments ─────────────────────
+      // Note: route_category_link references finals_routes (not routes), so
+      // qualifier routes need no category link — category is inferred from the
+      // climber's own registration when a judge submits a score.
       for (const c of CLIMBERS) {
         await client.query(
           `INSERT INTO climbers (climber_id, name, gender, age, team_name)
@@ -247,7 +237,7 @@ export async function POST(req: Request) {
         }
       }
 
-      // ── 6. Insert generated qualifier results ────────────────────────────
+      // ── 5. Insert generated qualifier results ────────────────────────────
       for (const [climber_id, route_id, score_type, attempts, is_top] of ALL_RESULTS) {
         const climber = CLIMBERS.find(c => c.climber_id === climber_id)!
         const catId   = catMap.get(climber.category)!
