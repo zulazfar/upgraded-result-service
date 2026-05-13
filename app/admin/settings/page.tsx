@@ -136,9 +136,9 @@ export default function SettingsPage() {
           Import Sample Data
         </h3>
         <p className="text-sm mb-4" style={{ color: 'var(--field-muted)', lineHeight: 1.6 }}>
-          Load a pre-built dataset for testing — 20 athletes across 4 categories
-          (Open Male, Open Female, Youth A Male, Youth A Female), 10 routes, and
-          representative qualifier results. Useful for demos and development.
+          Load a pre-built dataset for testing — 40 athletes across 4 categories
+          (Open Male, Open Female, Youth A Male, Youth A Female), 30 routes, and
+          full qualifier results for every athlete. Useful for demos and development.
         </p>
         <button
           onClick={openSeedDialog}
@@ -238,7 +238,7 @@ export default function SettingsPage() {
               <>
                 <div className="rounded-xl px-4 py-3 text-sm font-medium"
                   style={{ background: 'var(--field-green-dim)', color: 'var(--field-green-text)', boxShadow: '0 0 0 1px rgba(22,163,74,0.2)' }}>
-                  Ready to load: 20 athletes, 10 routes, 4 categories, and qualifier results.
+                  Ready to load: 40 athletes, 30 routes, 4 categories, and full qualifier results.
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setSeedOpen(false)}>Cancel</Button>
