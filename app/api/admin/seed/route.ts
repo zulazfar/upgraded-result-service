@@ -44,54 +44,55 @@ const ROUTES = [
 ]
 
 // skill: 1 (beginner) → 10 (elite). Determines which routes are attempted/topped.
+// Names reflect Singapore's multi-ethnic community: Malay, Chinese, Indian, Eurasian.
 const CLIMBERS = [
-  // Open Male (C001–C010)
-  { climber_id: 'C001', name: 'Ahmad Hakimi',     gender: 'Male',   age: 24, team_name: 'Vertical KL',  category: 'Open Male',      skill: 10 },
-  { climber_id: 'C002', name: 'Faris Izzat',      gender: 'Male',   age: 26, team_name: 'Bloc Society',  category: 'Open Male',      skill: 9  },
-  { climber_id: 'C003', name: 'Hazwan Arif',      gender: 'Male',   age: 23, team_name: 'Summit Club',   category: 'Open Male',      skill: 8  },
-  { climber_id: 'C004', name: 'Irfan Syazwan',    gender: 'Male',   age: 27, team_name: 'Vertical KL',   category: 'Open Male',      skill: 7  },
-  { climber_id: 'C005', name: 'Zulhilmi Azri',    gender: 'Male',   age: 22, team_name: 'Grip Masters',  category: 'Open Male',      skill: 6  },
-  { climber_id: 'C006', name: 'Danial Fikri',     gender: 'Male',   age: 25, team_name: 'Summit Club',   category: 'Open Male',      skill: 5  },
-  { climber_id: 'C007', name: 'Ridhwan Luqman',   gender: 'Male',   age: 21, team_name: 'Bloc Society',  category: 'Open Male',      skill: 4  },
-  { climber_id: 'C008', name: 'Naqib Zakwan',     gender: 'Male',   age: 20, team_name: 'Vertical KL',   category: 'Open Male',      skill: 3  },
-  { climber_id: 'C009', name: 'Afiq Syahmi',      gender: 'Male',   age: 19, team_name: 'Grip Masters',  category: 'Open Male',      skill: 2  },
-  { climber_id: 'C010', name: 'Harith Haziq',     gender: 'Male',   age: 18, team_name: 'Summit Club',   category: 'Open Male',      skill: 1  },
+  // Open Male (C001–C010) — Malay × 3, Chinese × 3, Indian × 2, Eurasian × 2
+  { climber_id: 'C001', name: 'Muhammad Haikal',    gender: 'Male',   age: 24, team_name: 'Kinetics Climbing',   category: 'Open Male',      skill: 10 },
+  { climber_id: 'C002', name: 'Lim Jun Hao',        gender: 'Male',   age: 26, team_name: 'Lighthouse Boulders', category: 'Open Male',      skill: 9  },
+  { climber_id: 'C003', name: 'Arjun Krishnamurthy',gender: 'Male',   age: 23, team_name: 'Climb Central SG',    category: 'Open Male',      skill: 8  },
+  { climber_id: 'C004', name: 'Xavier De Silva',    gender: 'Male',   age: 27, team_name: 'Boulder World',       category: 'Open Male',      skill: 7  },
+  { climber_id: 'C005', name: 'Farhan Abdul Razak', gender: 'Male',   age: 22, team_name: 'Kinetics Climbing',   category: 'Open Male',      skill: 6  },
+  { climber_id: 'C006', name: 'Tan Wei Jie',        gender: 'Male',   age: 25, team_name: 'Lighthouse Boulders', category: 'Open Male',      skill: 5  },
+  { climber_id: 'C007', name: 'Rajan Subramaniam',  gender: 'Male',   age: 21, team_name: 'Climb Central SG',    category: 'Open Male',      skill: 4  },
+  { climber_id: 'C008', name: 'Marcus Fernandez',   gender: 'Male',   age: 20, team_name: 'Boulder World',       category: 'Open Male',      skill: 3  },
+  { climber_id: 'C009', name: 'Izzat Mohd Zain',    gender: 'Male',   age: 19, team_name: 'SAFRA Climbing',      category: 'Open Male',      skill: 2  },
+  { climber_id: 'C010', name: 'Chen Kai Xuan',      gender: 'Male',   age: 18, team_name: 'SAFRA Climbing',      category: 'Open Male',      skill: 1  },
 
-  // Open Female (C011–C020)
-  { climber_id: 'C011', name: 'Aima Zulaikha',    gender: 'Female', age: 23, team_name: 'Vertical KL',   category: 'Open Female',    skill: 10 },
-  { climber_id: 'C012', name: 'Nurul Izzah',      gender: 'Female', age: 25, team_name: 'Summit Club',   category: 'Open Female',    skill: 9  },
-  { climber_id: 'C013', name: 'Siti Rahayu',      gender: 'Female', age: 27, team_name: 'Bloc Society',  category: 'Open Female',    skill: 8  },
-  { climber_id: 'C014', name: 'Fatin Nabilah',    gender: 'Female', age: 21, team_name: 'Grip Masters',  category: 'Open Female',    skill: 7  },
-  { climber_id: 'C015', name: 'Yasmin Adlina',    gender: 'Female', age: 24, team_name: 'Summit Club',   category: 'Open Female',    skill: 6  },
-  { climber_id: 'C016', name: 'Aina Sofiya',      gender: 'Female', age: 22, team_name: 'Vertical KL',   category: 'Open Female',    skill: 5  },
-  { climber_id: 'C017', name: 'Syaza Nurfatin',   gender: 'Female', age: 20, team_name: 'Bloc Society',  category: 'Open Female',    skill: 4  },
-  { climber_id: 'C018', name: 'Nabilah Husna',    gender: 'Female', age: 26, team_name: 'Grip Masters',  category: 'Open Female',    skill: 3  },
-  { climber_id: 'C019', name: 'Liyana Aziz',      gender: 'Female', age: 19, team_name: 'Vertical KL',   category: 'Open Female',    skill: 2  },
-  { climber_id: 'C020', name: 'Rania Zahra',      gender: 'Female', age: 18, team_name: 'Summit Club',   category: 'Open Female',    skill: 1  },
+  // Open Female (C011–C020) — Malay × 3, Chinese × 3, Indian × 2, Eurasian × 2
+  { climber_id: 'C011', name: 'Nurul Izzah Azmi',   gender: 'Female', age: 23, team_name: 'Kinetics Climbing',   category: 'Open Female',    skill: 10 },
+  { climber_id: 'C012', name: 'Wong Xiu Ying',      gender: 'Female', age: 25, team_name: 'Lighthouse Boulders', category: 'Open Female',    skill: 9  },
+  { climber_id: 'C013', name: 'Priya Nair',         gender: 'Female', age: 27, team_name: 'Climb Central SG',    category: 'Open Female',    skill: 8  },
+  { climber_id: 'C014', name: 'Nicole Pereira',     gender: 'Female', age: 21, team_name: 'Boulder World',       category: 'Open Female',    skill: 7  },
+  { climber_id: 'C015', name: 'Siti Zulaikha',      gender: 'Female', age: 24, team_name: 'Kinetics Climbing',   category: 'Open Female',    skill: 6  },
+  { climber_id: 'C016', name: 'Ng Jing Han',        gender: 'Female', age: 22, team_name: 'Lighthouse Boulders', category: 'Open Female',    skill: 5  },
+  { climber_id: 'C017', name: 'Kavitha Rajendran',  gender: 'Female', age: 20, team_name: 'Climb Central SG',    category: 'Open Female',    skill: 4  },
+  { climber_id: 'C018', name: "Rachel D'Cruz",      gender: 'Female', age: 26, team_name: 'Boulder World',       category: 'Open Female',    skill: 3  },
+  { climber_id: 'C019', name: 'Amirah Binte Yusof', gender: 'Female', age: 19, team_name: 'SAFRA Climbing',      category: 'Open Female',    skill: 2  },
+  { climber_id: 'C020', name: 'Lee Yu Xuan',        gender: 'Female', age: 18, team_name: 'SAFRA Climbing',      category: 'Open Female',    skill: 1  },
 
-  // Youth A Male (C021–C030)
-  { climber_id: 'C021', name: 'Zikri Hafeez',     gender: 'Male',   age: 17, team_name: 'Youth Rising',  category: 'Youth A Male',   skill: 10 },
-  { climber_id: 'C022', name: 'Arif Hamdan',      gender: 'Male',   age: 16, team_name: 'Vertical KL',   category: 'Youth A Male',   skill: 9  },
-  { climber_id: 'C023', name: 'Darwisyah Amir',   gender: 'Male',   age: 18, team_name: 'Youth Rising',  category: 'Youth A Male',   skill: 8  },
-  { climber_id: 'C024', name: 'Iman Hafiz',       gender: 'Male',   age: 17, team_name: 'Bloc Society',  category: 'Youth A Male',   skill: 7  },
-  { climber_id: 'C025', name: 'Luqmanul Hakim',   gender: 'Male',   age: 16, team_name: 'Summit Club',   category: 'Youth A Male',   skill: 6  },
-  { climber_id: 'C026', name: 'Mikhail Redzuan',  gender: 'Male',   age: 15, team_name: 'Youth Rising',  category: 'Youth A Male',   skill: 5  },
-  { climber_id: 'C027', name: 'Suffian Nazar',    gender: 'Male',   age: 17, team_name: 'Vertical KL',   category: 'Youth A Male',   skill: 4  },
-  { climber_id: 'C028', name: 'Umar Faruq',       gender: 'Male',   age: 16, team_name: 'Bloc Society',  category: 'Youth A Male',   skill: 3  },
-  { climber_id: 'C029', name: 'Wafiy Rusydan',    gender: 'Male',   age: 15, team_name: 'Youth Rising',  category: 'Youth A Male',   skill: 2  },
-  { climber_id: 'C030', name: 'Yusuf Alwi',       gender: 'Male',   age: 14, team_name: 'Summit Club',   category: 'Youth A Male',   skill: 1  },
+  // Youth A Male (C021–C030) — Malay × 3, Chinese × 3, Indian × 2, Eurasian × 2
+  { climber_id: 'C021', name: 'Rifqi Bin Harun',    gender: 'Male',   age: 17, team_name: 'Kinetics Climbing',   category: 'Youth A Male',   skill: 10 },
+  { climber_id: 'C022', name: 'Koh Zheng Yang',     gender: 'Male',   age: 16, team_name: 'Lighthouse Boulders', category: 'Youth A Male',   skill: 9  },
+  { climber_id: 'C023', name: 'Vikram Pillai',      gender: 'Male',   age: 18, team_name: 'Climb Central SG',    category: 'Youth A Male',   skill: 8  },
+  { climber_id: 'C024', name: 'Ethan Joachim',      gender: 'Male',   age: 17, team_name: 'Boulder World',       category: 'Youth A Male',   skill: 7  },
+  { climber_id: 'C025', name: 'Azlan Bin Ismail',   gender: 'Male',   age: 16, team_name: 'Kinetics Climbing',   category: 'Youth A Male',   skill: 6  },
+  { climber_id: 'C026', name: 'Yeo Jian Ming',      gender: 'Male',   age: 15, team_name: 'Lighthouse Boulders', category: 'Youth A Male',   skill: 5  },
+  { climber_id: 'C027', name: 'Suresh Kumar',       gender: 'Male',   age: 17, team_name: 'Climb Central SG',    category: 'Youth A Male',   skill: 4  },
+  { climber_id: 'C028', name: 'Adrian Monteiro',    gender: 'Male',   age: 16, team_name: 'Boulder World',       category: 'Youth A Male',   skill: 3  },
+  { climber_id: 'C029', name: 'Hariz Bin Kamal',    gender: 'Male',   age: 15, team_name: 'SAFRA Climbing',      category: 'Youth A Male',   skill: 2  },
+  { climber_id: 'C030', name: 'Goh Wei Xiang',      gender: 'Male',   age: 14, team_name: 'SAFRA Climbing',      category: 'Youth A Male',   skill: 1  },
 
-  // Youth A Female (C031–C040)
-  { climber_id: 'C031', name: 'Hana Sofea',       gender: 'Female', age: 17, team_name: 'Youth Rising',  category: 'Youth A Female', skill: 10 },
-  { climber_id: 'C032', name: 'Aliya Nadira',     gender: 'Female', age: 16, team_name: 'Vertical KL',   category: 'Youth A Female', skill: 9  },
-  { climber_id: 'C033', name: 'Batrisyia Nuur',   gender: 'Female', age: 18, team_name: 'Bloc Society',  category: 'Youth A Female', skill: 8  },
-  { climber_id: 'C034', name: 'Dhia Farhana',     gender: 'Female', age: 17, team_name: 'Youth Rising',  category: 'Youth A Female', skill: 7  },
-  { climber_id: 'C035', name: 'Elyana Maisara',   gender: 'Female', age: 16, team_name: 'Summit Club',   category: 'Youth A Female', skill: 6  },
-  { climber_id: 'C036', name: 'Farah Insyirah',   gender: 'Female', age: 15, team_name: 'Youth Rising',  category: 'Youth A Female', skill: 5  },
-  { climber_id: 'C037', name: 'Ghina Nadhirah',   gender: 'Female', age: 17, team_name: 'Vertical KL',   category: 'Youth A Female', skill: 4  },
-  { climber_id: 'C038', name: 'Hayfa Yasmin',     gender: 'Female', age: 16, team_name: 'Bloc Society',  category: 'Youth A Female', skill: 3  },
-  { climber_id: 'C039', name: 'Iris Zafirah',     gender: 'Female', age: 15, team_name: 'Youth Rising',  category: 'Youth A Female', skill: 2  },
-  { climber_id: 'C040', name: 'Jannah Safiyyah',  gender: 'Female', age: 14, team_name: 'Summit Club',   category: 'Youth A Female', skill: 1  },
+  // Youth A Female (C031–C040) — Malay × 3, Chinese × 3, Indian × 2, Eurasian × 2
+  { climber_id: 'C031', name: 'Nur Safiya Rosli',   gender: 'Female', age: 17, team_name: 'Kinetics Climbing',   category: 'Youth A Female', skill: 10 },
+  { climber_id: 'C032', name: 'Tan Li Mei',         gender: 'Female', age: 16, team_name: 'Lighthouse Boulders', category: 'Youth A Female', skill: 9  },
+  { climber_id: 'C033', name: 'Shreya Venkatesh',   gender: 'Female', age: 18, team_name: 'Climb Central SG',    category: 'Youth A Female', skill: 8  },
+  { climber_id: 'C034', name: 'Chloe Westerhout',   gender: 'Female', age: 17, team_name: 'Boulder World',       category: 'Youth A Female', skill: 7  },
+  { climber_id: 'C035', name: 'Fatin Binte Nordin', gender: 'Female', age: 16, team_name: 'Kinetics Climbing',   category: 'Youth A Female', skill: 6  },
+  { climber_id: 'C036', name: 'Lau Kai Xin',        gender: 'Female', age: 15, team_name: 'Lighthouse Boulders', category: 'Youth A Female', skill: 5  },
+  { climber_id: 'C037', name: 'Deepa Shankar',      gender: 'Female', age: 17, team_name: 'Climb Central SG',    category: 'Youth A Female', skill: 4  },
+  { climber_id: 'C038', name: 'Natasha De Souza',   gender: 'Female', age: 16, team_name: 'Boulder World',       category: 'Youth A Female', skill: 3  },
+  { climber_id: 'C039', name: 'Hasnah Binte Ali',   gender: 'Female', age: 15, team_name: 'SAFRA Climbing',      category: 'Youth A Female', skill: 2  },
+  { climber_id: 'C040', name: 'Chong Hui Ling',     gender: 'Female', age: 14, team_name: 'SAFRA Climbing',      category: 'Youth A Female', skill: 1  },
 ]
 
 // ── Deterministic result generator ───────────────────────────────────────────
