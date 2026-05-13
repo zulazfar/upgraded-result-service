@@ -67,7 +67,7 @@
   --accent-foreground:     #1D4ED8;
   --destructive:           #EF4444;
   --border:                #E4E7EC;
-  --input:                 #F3F5F8;
+  --input:                 #C2C8D2;   /* input border — was same as bg, now visible */
   --ring:                  #2563EB;
   --chart-1:               #2563EB;
   --chart-2:               #F97316;
@@ -218,3 +218,35 @@
   100% { background: transparent; }
 }
 .rank-updated { animation: rank-flash 0.8s var(--ease-out-expo); }
+
+/* ── Form field: 8px gap between Label and Input / SelectTrigger ────────── */
+/* Prevents the 3px focus ring from bleeding into the label text above.      */
+label[data-slot="label"] + input[data-slot="input"],
+label[data-slot="label"] + button[data-slot="select-trigger"] {
+  margin-top: 8px;
+}
+
+/* ── Table: 24px outer horizontal padding, comfortable row height ────────── */
+/* Overrides the tight px-2/p-2 defaults in the Table component.             */
+[data-slot="table-head"] {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+[data-slot="table-cell"] {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+/* First column: 24px left edge */
+[data-slot="table-head"]:first-child,
+[data-slot="table-cell"]:first-child {
+  padding-left: 24px;
+}
+/* Last column: 24px right edge */
+[data-slot="table-head"]:last-child,
+[data-slot="table-cell"]:last-child {
+  padding-right: 24px;
+}
