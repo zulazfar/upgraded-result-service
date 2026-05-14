@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/table-skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Zap, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 interface Category { category_id: number; category_name: string }
@@ -49,6 +50,9 @@ export default function FinalsAdminPage() {
   const [sort, setSort] = useState<SortState>({ col: 'qualifying_rank', dir: 'asc' })
   const [removeTarget, setRemoveTarget] = useState<FinalsClimber | null>(null)
   const [removing, setRemoving] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewAthletes, setPreviewAthletes] = useState<{ climber_name?: string; team_name?: string; total_points: number; total_tops: number }[]>([])
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   async function load() {
     setLoadingClimbers(true)
@@ -63,14 +67,24 @@ export default function FinalsAdminPage() {
   }
   useEffect(() => { load() }, [])
 
-  async function handlePromote() {
+  async function openPromotePreview() {
     if (!promoteCategory) { toast.error('Select a category first.'); return }
+    setPreviewLoading(true)
+    try {
+      const res = await fetch(`/api/results/category/${promoteCategory}`)
+      const data = await res.json()
+      setPreviewAthletes((data.results ?? []).slice(0, 8))
+      setPreviewOpen(true)
+    } finally { setPreviewLoading(false) }
+  }
+
+  async function handlePromote() {
     setPromoting(true)
     try {
       const res = await fetch(`/api/finals/promote/${promoteCategory}`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) { toast.error(data.message); return }
-      toast.success(data.message); load()
+      toast.success(data.message); setPreviewOpen(false); load()
     } finally { setPromoting(false) }
   }
 
@@ -140,18 +154,18 @@ export default function FinalsAdminPage() {
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold opacity-0 select-none">Go</label>
                 <button
-                  onClick={handlePromote}
-                  disabled={!promoteCategory || promoting}
+                  onClick={openPromotePreview}
+                  disabled={!promoteCategory || previewLoading}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold"
                   style={{
                     background: 'var(--field-orange)', color: '#fff', border: 'none',
-                    cursor: (!promoteCategory || promoting) ? 'not-allowed' : 'pointer',
-                    opacity: (!promoteCategory || promoting) ? 0.6 : 1,
+                    cursor: (!promoteCategory || previewLoading) ? 'not-allowed' : 'pointer',
+                    opacity: (!promoteCategory || previewLoading) ? 0.6 : 1,
                     boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
                     transition: 'all 180ms cubic-bezier(0.16, 1, 0.3, 1)',
                     whiteSpace: 'nowrap',
                   }}>
-                  {promoting ? 'Promoting…' : 'Promote Top 8'}
+                  {previewLoading ? 'Loading…' : 'Promote Top 8'}
                 </button>
               </div>
             </div>
@@ -258,6 +272,46 @@ export default function FinalsAdminPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ── Promote preview dialog ───────────────────────────────────── */}
+      <Dialog open={previewOpen} onOpenChange={o => { if (!promoting) setPreviewOpen(o) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Promote to Finals — {selectedCategoryName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <p className="text-sm" style={{ color: 'var(--field-muted)' }}>
+              The following {previewAthletes.length} athletes will be promoted based on qualifier standings:
+            </p>
+            <div className="rounded-xl overflow-hidden" style={{ boxShadow: 'var(--shadow-xs)' }}>
+              {previewAthletes.length === 0 ? (
+                <div className="px-4 py-6 text-center text-sm" style={{ color: 'var(--field-muted)' }}>
+                  No qualifier results found for this category.
+                </div>
+              ) : (
+                previewAthletes.map((a, i) => (
+                  <div key={i}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm"
+                    style={{ borderBottom: i < previewAthletes.length - 1 ? '1px solid rgba(17,24,39,0.05)' : undefined, background: i % 2 === 0 ? 'transparent' : 'rgba(17,24,39,0.015)' }}>
+                    <span className="w-5 text-center shrink-0 font-bold tabular-nums text-xs" style={{ color: i < 3 ? 'var(--field-orange)' : 'var(--field-muted)' }}>
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 font-medium truncate" style={{ color: 'var(--field-text)' }}>{a.climber_name ?? a.team_name}</span>
+                    <span className="tabular-nums font-bold shrink-0" style={{ color: 'var(--field-orange)', fontSize: '0.75rem' }}>{a.total_points} pts</span>
+                    <span className="tabular-nums shrink-0 text-xs" style={{ color: 'var(--field-muted)' }}>{a.total_tops}T</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button type="button" variant="outline" onClick={() => setPreviewOpen(false)} disabled={promoting}>Cancel</Button>
+              <Button type="button" disabled={promoting || previewAthletes.length === 0} onClick={handlePromote}>
+                {promoting ? 'Promoting…' : `Confirm & Promote ${previewAthletes.length}`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Remove finalist confirm ───────────────────────────────────── */}
       <ConfirmDialog

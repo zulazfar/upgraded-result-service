@@ -66,6 +66,12 @@ export default function ResultsPage() {
   }
   useEffect(() => { load() }, [])
 
+  // D1 — read ?q= from URL to pre-filter for a specific athlete
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('q')
+    if (q) setSearch(q)
+  }, [])
+
   function openEdit(r: Result) { setEditing(r); setForm({ score_type: r.score_type, attempts: String(r.attempts) }) }
 
   async function handleSave(e?: React.FormEvent) {
@@ -125,7 +131,7 @@ export default function ResultsPage() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
             style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>Admin</p>
-          <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>Results</h1>
+          <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>Score Log</h1>
         </div>
         <div className="flex gap-2">
           <button onClick={() => handleExport('csv')}

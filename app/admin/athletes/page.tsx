@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TableSkeleton } from '@/components/ui/table-skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Upload, Plus, Search, Users, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import Link from 'next/link'
+import { Upload, Plus, Search, Users, BarChart2, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 interface Category { category_id: number; category_name: string }
 interface Climber { climber_id: string; name: string; gender: string; age: number; team_name: string; categories: Category[] }
@@ -313,6 +314,11 @@ export default function AthletesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Link href={`/admin/results?q=${encodeURIComponent(c.climber_id)}`}>
+                        <Button size="sm" variant="ghost" title="View scores">
+                          <BarChart2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+                        </Button>
+                      </Link>
                       <Button size="sm" variant="outline" onClick={() => openEdit(c)}>Edit</Button>
                       <Button size="sm" variant="destructive" onClick={() => setDeleteTarget(c)}>Delete</Button>
                     </div>

@@ -12,7 +12,7 @@ import { TableSkeleton } from '@/components/ui/table-skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Plus, ShieldCheck, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
-interface Judge { judge_id: number; name: string; username: string; is_superadmin: boolean }
+interface Judge { judge_id: number; name: string; username: string; is_superadmin: boolean; route_count: number }
 interface Route { route_id: number; route_name: string; difficulty_points: number; assigned: boolean }
 type SortState = { col: string; dir: 'asc' | 'desc' }
 
@@ -191,7 +191,15 @@ export default function JudgesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline" onClick={() => openAssign(j)}>Routes</Button>
+                      <Button size="sm" variant="outline" onClick={() => openAssign(j)} className="gap-1.5">
+                        Routes
+                        {j.route_count > 0 && (
+                          <span className="inline-flex items-center justify-center text-xs font-bold tabular-nums px-1.5 py-0.5 rounded-full min-w-[20px]"
+                            style={{ background: 'var(--field-orange)', color: '#fff', fontSize: '10px' }}>
+                            {j.route_count}
+                          </span>
+                        )}
+                      </Button>
                       <Button size="sm" variant="outline" onClick={() => openEdit(j)}>Edit</Button>
                       <Button size="sm" variant="destructive" onClick={() => setDeleteTarget(j)}>Delete</Button>
                     </div>

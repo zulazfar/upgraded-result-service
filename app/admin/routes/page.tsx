@@ -11,7 +11,7 @@ import { TableSkeleton } from '@/components/ui/table-skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Upload, Plus, Search, MapPin, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
-interface Route { route_id: number; route_name: string; difficulty_points: number; result_count: number }
+interface Route { route_id: number; route_name: string; difficulty_points: number; result_count: number; assigned_judges: string }
 type SortState = { col: string; dir: 'asc' | 'desc' }
 
 function toggleSort(cur: SortState, col: string): SortState {
@@ -182,11 +182,12 @@ export default function RoutesPage() {
               <SortTh col="route_name" label="Name" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
               <SortTh col="difficulty_points" label="Points" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
               <TableHead>Scores</TableHead>
+              <TableHead>Judge</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           {loading ? (
-            <TableSkeleton columns={5} rows={6} />
+            <TableSkeleton columns={6} rows={6} />
           ) : (
             <TableBody>
               {filtered.length === 0 && routes.length === 0 && (
@@ -222,6 +223,9 @@ export default function RoutesPage() {
                   <TableCell className="font-semibold">{r.route_name || '—'}</TableCell>
                   <TableCell className="tabular-nums font-medium" style={{ color: 'var(--field-orange)' }}>{r.difficulty_points}</TableCell>
                   <TableCell className="tabular-nums text-sm" style={{ color: 'var(--field-muted)' }}>{r.result_count ?? 0}</TableCell>
+                  <TableCell className="text-sm max-w-[160px] truncate" style={{ color: r.assigned_judges ? 'var(--field-text)' : 'var(--field-muted)' }} title={r.assigned_judges || undefined}>
+                    {r.assigned_judges || 'Unassigned'}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => openEdit(r)}>Edit</Button>

@@ -4,9 +4,14 @@ import bcrypt from 'bcrypt'
 
 export async function GET() {
   try {
-    const result = await db.query(
-      'SELECT judge_id, name, username, is_superadmin FROM judges ORDER BY judge_id'
-    )
+    const result = await db.query(`
+      SELECT j.judge_id, j.name, j.username, j.is_superadmin,
+        COUNT(jra.route_id)::int AS route_count
+      FROM judges j
+      LEFT JOIN judge_route_assignments jra ON j.judge_id = jra.judge_id
+      GROUP BY j.judge_id, j.name, j.username, j.is_superadmin
+      ORDER BY j.name
+    `)
     return Response.json(result.rows)
   } catch (error) {
     console.error('Error fetching judges:', error)

@@ -58,7 +58,6 @@ export default function LeaderboardPage() {
     const res = await fetch(`/api/results/category/${id}`)
     setDetail(await res.json())
     setDetailLoading(false)
-    setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
 
   async function loadFinals() {
@@ -217,11 +216,10 @@ export default function LeaderboardPage() {
             </div>
           )}
 
-          {/* Full detail section */}
+          {/* Full detail section — always visible */}
           <div ref={detailRef}>
-            {(detailId || detail) && (
-              <div className="p-5 rounded-2xl space-y-4" style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
-                <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="p-5 rounded-2xl space-y-4" style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="flex items-center justify-between flex-wrap gap-3">
                   <h2 className="font-bold text-base" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
                     Full Results
                   </h2>
@@ -248,6 +246,14 @@ export default function LeaderboardPage() {
                     )}
                   </div>
                 </div>
+
+                {/* D5 — empty state when no category selected yet */}
+                {!detailId && !detailLoading && (
+                  <div className="py-12 text-center rounded-xl" style={{ background: 'var(--field-raised)' }}>
+                    <p className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>Select a category to view full standings</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--field-muted)' }}>Use the dropdown above or click "Full results" on any category card</p>
+                  </div>
+                )}
 
                 {detailLoading && (
                   <div className="space-y-2 py-1">
@@ -286,7 +292,7 @@ export default function LeaderboardPage() {
                             </TableRow>
                           ) : (
                             detail.results.map((r, i) => (
-                              <TableRow key={i}>
+                              <TableRow key={i} className="hover:bg-[var(--field-raised)] transition-colors">
                                 <TableCell className="font-bold">
                                   {i < 3 ? PODIUM[i] : <span className="tabular-nums text-sm" style={{ color: 'var(--field-muted)' }}>{i + 1}</span>}
                                 </TableCell>
@@ -302,8 +308,7 @@ export default function LeaderboardPage() {
                     </div>
                   </>
                 )}
-              </div>
-            )}
+            </div>
           </div>
         </TabsContent>
 

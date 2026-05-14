@@ -6,8 +6,8 @@ const ADMIN_LINKS = [
   { href: '/admin/athletes',    label: 'Athletes' },
   { href: '/admin/routes',      label: 'Routes' },
   { href: '/admin/judges',      label: 'Judges' },
-  { href: '/admin/results',     label: 'Results' },
   { href: '/admin/leaderboard', label: 'Leaderboard' },
+  { href: '/admin/results',     label: 'Score Log' },
   { href: '/admin/finals',      label: 'Finals' },
 ]
 

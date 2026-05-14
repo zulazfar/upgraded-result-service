@@ -5,7 +5,13 @@ export async function GET() {
   try {
     const result = await db.query(`
       SELECT r.route_id, r.route_name, r.difficulty_points,
-        COUNT(res.result_id)::int AS result_count
+        COUNT(DISTINCT res.result_id)::int AS result_count,
+        (
+          SELECT COALESCE(STRING_AGG(j2.name, ', '), '')
+          FROM judge_route_assignments jra2
+          JOIN judges j2 ON jra2.judge_id = j2.judge_id
+          WHERE jra2.route_id = r.route_id AND j2.is_superadmin = false
+        ) AS assigned_judges
       FROM routes r
       LEFT JOIN results res ON r.route_id = res.route_id
       GROUP BY r.route_id, r.route_name, r.difficulty_points
