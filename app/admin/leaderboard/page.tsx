@@ -130,7 +130,23 @@ export default function LeaderboardPage() {
         <TabsContent value="qualifiers" className="space-y-6 mt-4">
 
           {overviewLoading && (
-            <p className="text-sm font-medium" style={{ color: 'var(--field-muted)' }}>Loading standings…</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="rounded-2xl overflow-hidden" style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
+                  <div className="px-4 py-3" style={{ background: 'var(--field-raised)' }}>
+                    <div className="h-3.5 w-32 rounded-md" style={{ background: 'var(--field-border)', animation: `pulse 1.5s ease-in-out ${i * 0.1}s infinite` }} />
+                  </div>
+                  {[1, 2, 3, 4, 5].map(j => (
+                    <div key={j} className="flex items-center gap-3 px-4 py-2.5" style={{ borderBottom: '1px solid rgba(17,24,39,0.04)' }}>
+                      <div className="w-4 h-3 rounded" style={{ background: 'var(--field-raised)', animation: `pulse 1.5s ease-in-out ${(i + j) * 0.07}s infinite` }} />
+                      <div className="h-3 flex-1 rounded-md" style={{ background: 'var(--field-raised)', width: '60%', animation: `pulse 1.5s ease-in-out ${(i + j) * 0.06}s infinite` }} />
+                      <div className="h-3 w-8 rounded-md" style={{ background: 'var(--field-raised)', animation: `pulse 1.5s ease-in-out ${(i + j) * 0.05}s infinite` }} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
+            </div>
           )}
 
           {!overviewLoading && categories.length > 0 && (
@@ -234,7 +250,11 @@ export default function LeaderboardPage() {
                 </div>
 
                 {detailLoading && (
-                  <p className="text-sm font-medium" style={{ color: 'var(--field-muted)' }}>Loading…</p>
+                  <div className="space-y-2 py-1">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className="h-3.5 rounded-md" style={{ background: 'var(--field-raised)', width: `${55 + (i * 7) % 30}%`, animation: `pulse 1.5s ease-in-out ${i * 0.08}s infinite` }} />
+                    ))}
+                  </div>
                 )}
 
                 {detail && !detailLoading && (
@@ -307,7 +327,19 @@ export default function LeaderboardPage() {
           </div>
 
           {finalsLoading && (
-            <p className="text-sm font-medium" style={{ color: 'var(--field-muted)' }}>Loading…</p>
+            <div className="rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <div className="px-6 py-3" style={{ background: 'var(--field-raised)' }}>
+                <div className="h-3.5 w-40 rounded-md" style={{ background: 'var(--field-border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              </div>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="flex items-center gap-4 px-6 py-3.5" style={{ borderBottom: '1px solid rgba(17,24,39,0.04)', animation: `pulse 1.5s ease-in-out ${i * 0.1}s infinite` }}>
+                  <div className="h-3 w-4 rounded" style={{ background: 'var(--field-raised)' }} />
+                  <div className="h-3 flex-1 max-w-[180px] rounded-md" style={{ background: 'var(--field-raised)' }} />
+                  <div className="h-3 w-24 rounded-md" style={{ background: 'var(--field-raised)' }} />
+                  <div className="h-3 w-12 rounded-md ml-auto" style={{ background: 'var(--field-raised)' }} />
+                </div>
+              ))}
+            </div>
           )}
 
           {!finalsLoading && finalsData.length === 0 && (

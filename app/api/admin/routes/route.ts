@@ -3,7 +3,14 @@ import { getSession } from '@/lib/session'
 
 export async function GET() {
   try {
-    const result = await db.query('SELECT route_id, route_name, difficulty_points FROM routes ORDER BY route_id')
+    const result = await db.query(`
+      SELECT r.route_id, r.route_name, r.difficulty_points,
+        COUNT(res.result_id)::int AS result_count
+      FROM routes r
+      LEFT JOIN results res ON r.route_id = res.route_id
+      GROUP BY r.route_id, r.route_name, r.difficulty_points
+      ORDER BY r.route_id
+    `)
     return Response.json(result.rows)
   } catch (error) {
     console.error('Error fetching routes:', error)
