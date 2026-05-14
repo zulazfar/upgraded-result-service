@@ -56,11 +56,13 @@ export async function POST(_req: Request, { params }: { params: Promise<{ catego
     const client = await db.connect()
     try {
       await client.query('BEGIN')
+      // Remove any previously-promoted athletes for this category before re-inserting,
+      // so the list reflects exactly the current top 8 (no stale entries from prior runs).
+      await client.query('DELETE FROM finals_climbers WHERE category_id = $1', [categoryIdInt])
       for (const climber of finalists.rows) {
         await client.query(
           `INSERT INTO finals_climbers (climber_id, name, organisation, category, gender, category_id, qualifying_rank)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
-           ON CONFLICT (climber_id) DO UPDATE SET qualifying_rank = EXCLUDED.qualifying_rank`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
           [climber.climber_id, climber.name, climber.team_name || null, categoryName, climber.gender, categoryIdInt, climber.qual_rank]
         )
       }

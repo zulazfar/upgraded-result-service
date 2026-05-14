@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Link from 'next/link'
-import { ExternalLink, RefreshCw } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 
 interface Category { category_id: number; category_name: string }
 interface Result { climber_id?: string; climber_name?: string; team_name?: string; total_points: number; total_tops: number; total_attempts: number }
@@ -15,6 +15,7 @@ interface CategoryResults { category_name: string; is_team_category: boolean; re
 interface FinalsResult { rank: number; climberId: string; name: string; category: string; score: number; topCount: number; zoneCount: number }
 
 const PODIUM = ['🥇', '🥈', '🥉']
+const REFRESH_INTERVAL_MS = 30_000
 
 export default function LeaderboardPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -29,16 +30,47 @@ export default function LeaderboardPage() {
   const [finalsData, setFinalsData] = useState<FinalsResult[]>([])
   const [finalsLoading, setFinalsLoading] = useState(false)
 
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null)
+
+  // Stable refs for interval callback (avoids stale closures)
+  const categoriesRef = useRef<Category[]>([])
+  const detailIdRef = useRef('')
+  useEffect(() => { categoriesRef.current = categories }, [categories])
+  useEffect(() => { detailIdRef.current = detailId }, [detailId])
+
+  // Initial load — auto-select first category
   useEffect(() => {
     fetch('/api/admin/categories')
       .then(r => r.json())
       .then((cats: Category[]) => {
         setCategories(cats)
+        categoriesRef.current = cats
         loadOverview(cats)
+        if (cats.length > 0) {
+          const firstId = String(cats[0].category_id)
+          detailIdRef.current = firstId
+          loadDetail(firstId)
+        }
       })
     loadFinals()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-refresh every 30 s (silent — no loading spinners)
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const cats = categoriesRef.current
+      const did = detailIdRef.current
+      await Promise.all([
+        cats.length > 0 ? silentRefreshOverview(cats) : Promise.resolve(),
+        did ? silentRefreshDetail(did) : Promise.resolve(),
+        silentRefreshFinals(),
+      ])
+      setLastRefreshed(new Date())
+    }, REFRESH_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Data loaders (show loading skeletons) ──────────────────────────────
   async function loadOverview(cats: Category[]) {
     setOverviewLoading(true)
     const entries = await Promise.all(
@@ -50,6 +82,7 @@ export default function LeaderboardPage() {
     )
     setOverview(Object.fromEntries(entries))
     setOverviewLoading(false)
+    setLastRefreshed(new Date())
   }
 
   async function loadDetail(id: string) {
@@ -67,9 +100,27 @@ export default function LeaderboardPage() {
     setFinalsLoading(false)
   }
 
-  function handleRefresh() {
-    loadOverview(categories)
-    if (detailId) loadDetail(detailId)
+  // ── Silent refreshers (background update, no loading state) ────────────
+  async function silentRefreshOverview(cats: Category[]) {
+    const entries = await Promise.all(
+      cats.map(c =>
+        fetch(`/api/results/category/${c.category_id}`)
+          .then(r => r.json())
+          .then((d: CategoryResults) => [c.category_id, d] as const)
+      )
+    )
+    setOverview(Object.fromEntries(entries))
+  }
+
+  async function silentRefreshDetail(id: string) {
+    if (!id) return
+    const res = await fetch(`/api/results/category/${id}`)
+    setDetail(await res.json())
+  }
+
+  async function silentRefreshFinals() {
+    const res = await fetch('/api/finals/leaderboard')
+    setFinalsData(await res.json())
   }
 
   const selectedDetailName = categories.find(c => String(c.category_id) === detailId)?.category_name
@@ -89,20 +140,15 @@ export default function LeaderboardPage() {
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleRefresh}
-            className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl"
-            style={{
-              background: 'var(--field-raised)',
-              color: 'var(--field-muted)',
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-xs)',
-              transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
-            }}>
-            <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} />
-            Refresh
-          </button>
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--field-muted)' }}>
+            <span className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{ background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.18)', animation: 'livePulse 2s ease-in-out infinite' }} />
+            {lastRefreshed
+              ? `Updated ${lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+              : 'Live · auto-refreshes every 30 s'}
+          </div>
+          <style>{`@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
           <Link
             href="/leaderboard"
             target="_blank"
@@ -199,7 +245,7 @@ export default function LeaderboardPage() {
                       onClick={() => loadDetail(String(cat.category_id))}
                       className="w-full text-xs font-semibold text-center py-2.5"
                       style={{
-                        color: 'var(--field-muted)',
+                        color: String(cat.category_id) === detailId ? 'var(--field-orange)' : 'var(--field-muted)',
                         background: 'transparent',
                         border: 'none',
                         borderTop: '1px solid rgba(17,24,39,0.05)',
@@ -207,7 +253,10 @@ export default function LeaderboardPage() {
                         transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
                       }}
                       onMouseEnter={e => { e.currentTarget.style.color = 'var(--field-orange)'; e.currentTarget.style.background = 'var(--field-raised)' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--field-muted)'; e.currentTarget.style.background = 'transparent' }}>
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = String(cat.category_id) === detailId ? 'var(--field-orange)' : 'var(--field-muted)'
+                        e.currentTarget.style.background = 'transparent'
+                      }}>
                       Full results ({d?.results?.length ?? 0}) →
                     </button>
                   </div>
@@ -220,116 +269,99 @@ export default function LeaderboardPage() {
           <div ref={detailRef}>
             <div className="p-5 rounded-2xl space-y-4" style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
               <div className="flex items-center justify-between flex-wrap gap-3">
-                  <h2 className="font-bold text-base" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
-                    Full Results
-                  </h2>
-                  <div className="flex gap-2 items-center">
-                    <Select value={detailId} onValueChange={v => loadDetail(v ?? '')}>
-                      <SelectTrigger className="w-52">
-                        <SelectValue placeholder="Select category…">
-                          {selectedDetailName ?? <span className="text-muted-foreground">Select category…</span>}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(c => (
-                          <SelectItem key={c.category_id} value={String(c.category_id)}>
-                            {c.category_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {detail && (
-                      <Button variant="outline" size="sm"
-                        onClick={() => window.open(`/api/results/export?format=xlsx&category_id=${detailId}`, '_blank')}>
-                        Export Excel
-                      </Button>
-                    )}
-                  </div>
+                <h2 className="font-bold text-base" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
+                  Full Results
+                </h2>
+                <div className="flex gap-2 items-center">
+                  <Select value={detailId} onValueChange={v => loadDetail(v ?? '')}>
+                    <SelectTrigger className="w-52">
+                      <SelectValue placeholder="Select category…">
+                        {selectedDetailName ?? <span className="text-muted-foreground">Select category…</span>}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(c => (
+                        <SelectItem key={c.category_id} value={String(c.category_id)}>
+                          {c.category_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {detail && (
+                    <Button variant="outline" size="sm"
+                      onClick={() => window.open(`/api/results/export?format=xlsx&category_id=${detailId}`, '_blank')}>
+                      Export Excel
+                    </Button>
+                  )}
                 </div>
+              </div>
 
-                {/* D5 — empty state when no category selected yet */}
-                {!detailId && !detailLoading && (
-                  <div className="py-12 text-center rounded-xl" style={{ background: 'var(--field-raised)' }}>
-                    <p className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>Select a category to view full standings</p>
-                    <p className="text-xs mt-1" style={{ color: 'var(--field-muted)' }}>Use the dropdown above or click "Full results" on any category card</p>
+              {detailLoading && (
+                <div className="space-y-2 py-1">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="h-3.5 rounded-md" style={{ background: 'var(--field-raised)', width: `${55 + (i * 7) % 30}%`, animation: `pulse 1.5s ease-in-out ${i * 0.08}s infinite` }} />
+                  ))}
+                </div>
+              )}
+
+              {!detail && !detailLoading && (
+                <div className="py-12 text-center rounded-xl" style={{ background: 'var(--field-raised)' }}>
+                  <p className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>No categories configured yet</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--field-muted)' }}>Set up categories and athletes to see standings here</p>
+                </div>
+              )}
+
+              {detail && !detailLoading && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-base" style={{ color: 'var(--field-text)' }}>{detail.category_name}</span>
+                    {detail.is_team_category && <Badge variant="secondary">Team</Badge>}
+                    <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
+                      ({detail.results.length} {detail.is_team_category ? 'teams' : 'athletes'})
+                    </span>
                   </div>
-                )}
-
-                {detailLoading && (
-                  <div className="space-y-2 py-1">
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} className="h-3.5 rounded-md" style={{ background: 'var(--field-raised)', width: `${55 + (i * 7) % 30}%`, animation: `pulse 1.5s ease-in-out ${i * 0.08}s infinite` }} />
-                    ))}
-                  </div>
-                )}
-
-                {detail && !detailLoading && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-base" style={{ color: 'var(--field-text)' }}>{detail.category_name}</span>
-                      {detail.is_team_category && <Badge variant="secondary">Team</Badge>}
-                      <span className="text-xs font-medium" style={{ color: 'var(--field-muted)' }}>
-                        ({detail.results.length} {detail.is_team_category ? 'teams' : 'athletes'})
-                      </span>
-                    </div>
-                    <div className="rounded-xl overflow-hidden" style={{ boxShadow: 'var(--shadow-xs)' }}>
-                      <Table>
-                        <TableHeader>
-                          <TableRow style={{ background: 'var(--field-raised)' }}>
-                            <TableHead className="w-12">Rank</TableHead>
-                            <TableHead>{detail.is_team_category ? 'Team' : 'Athlete'}</TableHead>
-                            <TableHead className="text-right">Points</TableHead>
-                            <TableHead className="text-right">Tops</TableHead>
-                            <TableHead className="text-right">Attempts</TableHead>
+                  <div className="rounded-xl overflow-hidden" style={{ boxShadow: 'var(--shadow-xs)' }}>
+                    <Table>
+                      <TableHeader>
+                        <TableRow style={{ background: 'var(--field-raised)' }}>
+                          <TableHead className="w-12">Rank</TableHead>
+                          <TableHead>{detail.is_team_category ? 'Team' : 'Athlete'}</TableHead>
+                          <TableHead className="text-right">Points</TableHead>
+                          <TableHead className="text-right">Tops</TableHead>
+                          <TableHead className="text-right">Attempts</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {detail.results.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center py-8 text-sm" style={{ color: 'var(--field-muted)' }}>
+                              No results yet.
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {detail.results.length === 0 ? (
-                            <TableRow>
-                              <TableCell colSpan={5} className="text-center py-8 text-sm" style={{ color: 'var(--field-muted)' }}>
-                                No results yet.
+                        ) : (
+                          detail.results.map((r, i) => (
+                            <TableRow key={i} className="hover:bg-[var(--field-raised)] transition-colors">
+                              <TableCell className="font-bold">
+                                {i < 3 ? PODIUM[i] : <span className="tabular-nums text-sm" style={{ color: 'var(--field-muted)' }}>{i + 1}</span>}
                               </TableCell>
+                              <TableCell className="font-semibold">{detail.is_team_category ? r.team_name : r.climber_name}</TableCell>
+                              <TableCell className="text-right font-bold tabular-nums" style={{ color: i < 3 ? 'var(--field-orange)' : 'var(--field-text)' }}>{r.total_points}</TableCell>
+                              <TableCell className="text-right tabular-nums">{r.total_tops}</TableCell>
+                              <TableCell className="text-right tabular-nums" style={{ color: 'var(--field-muted)' }}>{r.total_attempts}</TableCell>
                             </TableRow>
-                          ) : (
-                            detail.results.map((r, i) => (
-                              <TableRow key={i} className="hover:bg-[var(--field-raised)] transition-colors">
-                                <TableCell className="font-bold">
-                                  {i < 3 ? PODIUM[i] : <span className="tabular-nums text-sm" style={{ color: 'var(--field-muted)' }}>{i + 1}</span>}
-                                </TableCell>
-                                <TableCell className="font-semibold">{detail.is_team_category ? r.team_name : r.climber_name}</TableCell>
-                                <TableCell className="text-right font-bold tabular-nums" style={{ color: i < 3 ? 'var(--field-orange)' : 'var(--field-text)' }}>{r.total_points}</TableCell>
-                                <TableCell className="text-right tabular-nums">{r.total_tops}</TableCell>
-                                <TableCell className="text-right tabular-nums" style={{ color: 'var(--field-muted)' }}>{r.total_attempts}</TableCell>
-                              </TableRow>
-                            ))
-                          )}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </>
-                )}
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </TabsContent>
 
         {/* ── FINALS ──────────────────────────────────────────────────── */}
         <TabsContent value="finals" className="space-y-4 mt-4">
-          <div className="flex justify-end">
-            <button
-              onClick={loadFinals}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl"
-              style={{
-                background: 'var(--field-raised)',
-                color: 'var(--field-muted)',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: 'var(--shadow-xs)',
-                transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
-              }}>
-              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.75} />
-              Refresh
-            </button>
-          </div>
 
           {finalsLoading && (
             <div className="rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>

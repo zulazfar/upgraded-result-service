@@ -48,6 +48,7 @@ export default function FinalsAdminPage() {
   const [promoting, setPromoting] = useState(false)
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [sort, setSort] = useState<SortState>({ col: 'qualifying_rank', dir: 'asc' })
+  const [categoryTab, setCategoryTab] = useState<string>('')
   const [removeTarget, setRemoveTarget] = useState<FinalsClimber | null>(null)
   const [removing, setRemoving] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -100,6 +101,9 @@ export default function FinalsAdminPage() {
   }
 
   const selectedCategoryName = categories.find(c => String(c.category_id) === promoteCategory)?.category_name
+
+  // Derive unique promoted categories from the climbers list
+  const promotedCategories = [...new Set(climbers.map(c => c.category))].sort()
 
   const sortedClimbers = [...climbers].sort((a, b) => {
     const av = (a as any)[sort.col] ?? ''
@@ -171,10 +175,44 @@ export default function FinalsAdminPage() {
             </div>
           </div>
 
+          {/* Category tabs — shown once at least one category has been promoted */}
+          {!loadingClimbers && promotedCategories.length > 0 && (
+            <div className="flex gap-1.5 flex-wrap">
+              <button
+                onClick={() => setCategoryTab('')}
+                className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+                style={{
+                  background: !categoryTab ? 'var(--field-orange)' : 'var(--field-raised)',
+                  color: !categoryTab ? '#fff' : 'var(--field-muted)',
+                  border: 'none', cursor: 'pointer',
+                }}>
+                All ({climbers.length})
+              </button>
+              {promotedCategories.map(cat => {
+                const count = climbers.filter(c => c.category === cat).length
+                return (
+                  <button key={cat}
+                    onClick={() => setCategoryTab(cat)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+                    style={{
+                      background: categoryTab === cat ? 'var(--field-orange)' : 'var(--field-raised)',
+                      color: categoryTab === cat ? '#fff' : 'var(--field-muted)',
+                      border: 'none', cursor: 'pointer',
+                    }}>
+                    {cat} ({count})
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
           {/* Count */}
           <div className="flex justify-end">
             <span className="text-xs font-medium tabular-nums" style={{ color: 'var(--field-muted)' }}>
-              {loadingClimbers ? '—' : `${climbers.length} finalist${climbers.length !== 1 ? 's' : ''}`}
+              {loadingClimbers ? '—' : (() => {
+                const visible = categoryTab ? climbers.filter(c => c.category === categoryTab).length : climbers.length
+                return `${visible} finalist${visible !== 1 ? 's' : ''}${categoryTab ? ` in ${categoryTab}` : ''}`
+              })()}
             </span>
           </div>
 
@@ -185,7 +223,7 @@ export default function FinalsAdminPage() {
                 <TableRow style={{ background: 'var(--field-raised)' }}>
                   <TableHead>ID</TableHead>
                   <SortTh col="name" label="Name" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
-                  <SortTh col="category" label="Category" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
+                  {!categoryTab && <SortTh col="category" label="Category" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />}
                   <SortTh col="gender" label="Gender" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
                   <SortTh col="qualifying_rank" label="Q.Rank" sort={sort} onSort={c => setSort(s => toggleSort(s, c))} />
                   <TableHead className="text-right">Actions</TableHead>
@@ -195,7 +233,7 @@ export default function FinalsAdminPage() {
                 <TableSkeleton columns={6} rows={5} />
               ) : (
                 <TableBody>
-                  {sortedClimbers.length === 0 && (
+                  {sortedClimbers.filter(c => !categoryTab || c.category === categoryTab).length === 0 && (
                     <TableRow>
                       <TableCell colSpan={6} className="py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
@@ -210,11 +248,11 @@ export default function FinalsAdminPage() {
                       </TableCell>
                     </TableRow>
                   )}
-                  {sortedClimbers.map(c => (
+                  {sortedClimbers.filter(c => !categoryTab || c.category === categoryTab).map(c => (
                     <TableRow key={c.climber_id} className="hover:bg-[var(--field-raised)] transition-colors">
                       <TableCell className="font-mono text-xs">{c.climber_id}</TableCell>
                       <TableCell className="font-semibold">{c.name}</TableCell>
-                      <TableCell style={{ color: 'var(--field-muted)' }}>{c.category}</TableCell>
+                      {!categoryTab && <TableCell style={{ color: 'var(--field-muted)' }}>{c.category}</TableCell>}
                       <TableCell style={{ color: 'var(--field-muted)' }}>{c.gender}</TableCell>
                       <TableCell className="tabular-nums font-medium">{c.qualifying_rank || '—'}</TableCell>
                       <TableCell className="text-right">
