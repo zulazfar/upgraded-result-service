@@ -29,21 +29,24 @@ export function Nav({ links, title, settingsHref }: NavProps) {
       top: 0,
       zIndex: 40,
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-13" style={{ height: '52px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between" style={{ height: '52px' }}>
 
-        {/* Brand */}
-        <div className="flex items-center gap-5 min-w-0">
-          <div className="flex items-center gap-2 shrink-0">
+        {/* Left: brand + nav links */}
+        <div className="flex items-center gap-4 min-w-0">
+
+          {/* Product logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="flex items-center justify-center w-6 h-6 rounded-md" style={{ background: 'var(--field-orange)' }}>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M2 10 L6 2 L10 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="font-bold text-sm" style={{ color: 'var(--field-text)', letterSpacing: '-0.01em' }}>
-              {title}
+            <span className="font-bold text-sm" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
+              result<span style={{ color: 'var(--field-orange)' }}>OS</span>
             </span>
-          </div>
+          </Link>
 
+          {/* Divider */}
           <span className="h-4 w-px shrink-0" style={{ background: 'var(--field-border)' }} />
 
           {/* Nav links */}
@@ -66,19 +69,33 @@ export function Nav({ links, title, settingsHref }: NavProps) {
           </div>
         </div>
 
-        {/* Right: settings + logout */}
+        {/* Right: context label | settings | logout */}
         <div className="flex items-center gap-1 shrink-0">
-          {settingsHref && (
-            <Link href={settingsHref} title="Settings"
-              className="p-2 rounded-lg transition-all"
-              style={{
-                color: pathname === settingsHref ? 'var(--field-orange)' : 'var(--field-muted)',
-                background: pathname === settingsHref ? 'var(--field-orange-dim)' : 'transparent',
-                transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
-              }}>
-              <Settings className="w-4 h-4" strokeWidth={1.75} />
-            </Link>
+
+          {/* Context badge (e.g. "Admin" or "Judge") */}
+          {title && (
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md mr-1"
+              style={{ background: 'var(--field-orange-dim)', color: 'var(--field-orange)' }}>
+              {title}
+            </span>
           )}
+
+          {/* Pipe + settings */}
+          {settingsHref && (
+            <>
+              <span className="h-4 w-px mx-1" style={{ background: 'var(--field-border)' }} />
+              <Link href={settingsHref} title="Settings"
+                className="p-2 rounded-lg transition-all"
+                style={{
+                  color: pathname === settingsHref ? 'var(--field-orange)' : 'var(--field-muted)',
+                  background: pathname === settingsHref ? 'var(--field-orange-dim)' : 'transparent',
+                  transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)',
+                }}>
+                <Settings className="w-4 h-4" strokeWidth={1.75} />
+              </Link>
+            </>
+          )}
+
           <button onClick={handleLogout}
             className="px-3 py-1.5 rounded-lg text-sm"
             style={{
