@@ -52,6 +52,8 @@ export default function JudgesPage() {
   const [savingAssign, setSavingAssign] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Judge | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [verifyOpen, setVerifyOpen] = useState(false)
+  const [verifyPass, setVerifyPass] = useState('')
 
   async function load() {
     setLoading(true)
@@ -73,15 +75,25 @@ export default function JudgesPage() {
 
   async function handleSave(e?: React.FormEvent) {
     e?.preventDefault()
+    // Granting admin to a new account or promoting an existing non-admin requires password verification
+    const grantingAdmin = form.is_superadmin && (!editing || !editing.is_superadmin)
+    if (grantingAdmin) {
+      setVerifyPass(''); setVerifyOpen(true); return
+    }
+    await doSave()
+  }
+
+  async function doSave(adminPassword?: string) {
     setSaving(true)
     try {
       const url = editing ? `/api/admin/judges/${editing.judge_id}` : '/api/admin/judges'
       const method = editing ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      const body = adminPassword ? { ...form, admin_password: adminPassword } : form
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) { toast.error(data.message); return }
       toast.success(editing ? 'Judge updated.' : 'Judge added.')
-      setOpen(false); load()
+      setOpen(false); setVerifyOpen(false); load()
     } finally { setSaving(false) }
   }
 
@@ -314,6 +326,36 @@ export default function JudgesPage() {
         onConfirm={handleDelete}
         loading={deleting}
       />
+
+      {/* ── Admin password verification ───────────────────────────────── */}
+      <Dialog open={verifyOpen} onOpenChange={o => { if (!saving) setVerifyOpen(o) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Your Identity</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <p className="text-sm" style={{ color: 'var(--field-muted)' }}>
+              Granting admin access is a sensitive action. Enter your own password to confirm.
+            </p>
+            <div>
+              <Label>Your Password <span className="text-destructive">*</span></Label>
+              <Input
+                type="password"
+                value={verifyPass}
+                onChange={e => setVerifyPass(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && verifyPass) doSave(verifyPass) }}
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setVerifyOpen(false)} disabled={saving}>Cancel</Button>
+              <Button type="button" disabled={saving || !verifyPass} onClick={() => doSave(verifyPass)}>
+                {saving ? 'Confirming…' : 'Confirm & Save'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

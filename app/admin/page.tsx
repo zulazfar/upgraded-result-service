@@ -98,6 +98,58 @@ export default async function AdminDashboard() {
         </h1>
       </div>
 
+      {/* ── Top 3 per category (summary view — above nav tiles) ─────── */}
+      {top3.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
+                style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>Live Standings</p>
+              <h2 className="font-bold text-xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
+                Top 3 by Category
+              </h2>
+            </div>
+            <Link href="/admin/leaderboard"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: 'var(--field-raised)', color: 'var(--field-muted)', boxShadow: 'var(--shadow-xs)' }}>
+              Full leaderboard →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {top3.map(cat => (
+              <div key={cat.category_id}
+                className="p-4 rounded-2xl"
+                style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
+                <p className="text-xs font-bold uppercase tracking-wide mb-3"
+                  style={{ color: 'var(--field-muted)', letterSpacing: '0.08em' }}>
+                  {cat.category_name}
+                </p>
+                <div className="space-y-2">
+                  {cat.athletes.map((a, i) => (
+                    <div key={i} className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm shrink-0 w-5 text-center">{PODIUM[i]}</span>
+                      <span className="text-sm font-medium truncate flex-1" style={{ color: 'var(--field-text)' }}>
+                        {a.name}
+                      </span>
+                      <span className="text-xs font-bold tabular-nums shrink-0" style={{ color: 'var(--field-orange)' }}>
+                        {a.total_points}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Divider ──────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-3 mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest shrink-0"
+          style={{ color: 'var(--field-muted)', letterSpacing: '0.12em' }}>Management</p>
+        <div className="flex-1 h-px" style={{ background: 'var(--field-border)' }} />
+      </div>
+
       {/* ── Quick-nav cards ───────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map(({ href, title, desc, Icon, statKey, unit }) => {
@@ -141,50 +193,6 @@ export default async function AdminDashboard() {
         })}
       </div>
 
-      {/* ── Top 3 per category ───────────────────────────────────────── */}
-      {top3.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest mb-0.5"
-                style={{ color: 'var(--field-orange)', letterSpacing: '0.12em' }}>Live Standings</p>
-              <h2 className="font-bold text-xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>
-                Top 3 by Category
-              </h2>
-            </div>
-            <Link href="/admin/leaderboard"
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg"
-              style={{ background: 'var(--field-raised)', color: 'var(--field-muted)', boxShadow: 'var(--shadow-xs)' }}>
-              Full leaderboard →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {top3.map(cat => (
-              <div key={cat.category_id}
-                className="p-4 rounded-2xl"
-                style={{ background: '#fff', boxShadow: 'var(--shadow-sm)' }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-3"
-                  style={{ color: 'var(--field-muted)', letterSpacing: '0.08em' }}>
-                  {cat.category_name}
-                </p>
-                <div className="space-y-2">
-                  {cat.athletes.map((a, i) => (
-                    <div key={i} className="flex items-center gap-2 min-w-0">
-                      <span className="text-sm shrink-0 w-5 text-center">{PODIUM[i]}</span>
-                      <span className="text-sm font-medium truncate flex-1" style={{ color: 'var(--field-text)' }}>
-                        {a.name}
-                      </span>
-                      <span className="text-xs font-bold tabular-nums shrink-0" style={{ color: 'var(--field-orange)' }}>
-                        {a.total_points}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

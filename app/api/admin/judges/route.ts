@@ -24,9 +24,20 @@ export async function POST(req: Request) {
     const session = await getSession()
     if (!session.isSuperAdmin) return Response.json({ message: 'Forbidden.' }, { status: 403 })
 
-    const { name, username, password, is_superadmin } = await req.json()
+    const { name, username, password, is_superadmin, admin_password } = await req.json()
     if (!name?.trim() || !username?.trim() || !password) {
       return Response.json({ message: 'Name, username, and password required.' }, { status: 400 })
+    }
+
+    // Granting superadmin requires the current admin to confirm their own password
+    if (is_superadmin) {
+      if (!admin_password) {
+        return Response.json({ message: 'Your password is required to grant admin access.' }, { status: 400 })
+      }
+      const adminRow = await db.query('SELECT password_hash FROM judges WHERE judge_id=$1', [session.judgeId])
+      if (adminRow.rows.length === 0) return Response.json({ message: 'Session error.' }, { status: 401 })
+      const valid = await bcrypt.compare(admin_password, adminRow.rows[0].password_hash)
+      if (!valid) return Response.json({ message: 'Incorrect password.' }, { status: 401 })
     }
 
     const hash = await bcrypt.hash(password, 10)
