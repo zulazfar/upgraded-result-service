@@ -56,6 +56,12 @@ export default function ResultsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Result | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  // Export modal state
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportFormat, setExportFormat] = useState<'csv' | 'xlsx'>('csv')
+  const [exportCats, setExportCats] = useState<Set<number>>(new Set())
+  const [exporting, setExporting] = useState(false)
+
   async function load() {
     setLoading(true)
     const [res, cats] = await Promise.all([
@@ -101,8 +107,35 @@ export default function ResultsPage() {
     } finally { setDeleting(false) }
   }
 
-  function handleExport(format: 'csv' | 'xlsx') {
-    window.open(`/api/results/export?format=${format}`, '_blank')
+  function openExport(format: 'csv' | 'xlsx') {
+    setExportFormat(format)
+    // Pre-select all categories
+    setExportCats(new Set(categories.map(c => c.category_id)))
+    setExportOpen(true)
+  }
+
+  function toggleExportCat(id: number) {
+    setExportCats(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  async function handleExport() {
+    setExporting(true)
+    try {
+      const date = new Date().toISOString().split('T')[0]
+      const ext = exportFormat === 'xlsx' ? 'xlsx' : 'csv'
+      const filename = `${date}-results.${ext}`
+      const ids = Array.from(exportCats).join(',')
+      const url = `/api/results/export?format=${exportFormat}${ids ? `&category_ids=${ids}` : ''}`
+      const res = await fetch(url)
+      if (!res.ok) { toast.error('Export failed.'); return }
+      const blob = await res.blob()
+      const objUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objUrl; a.download = filename
+      document.body.appendChild(a); a.click()
+      document.body.removeChild(a); URL.revokeObjectURL(objUrl)
+      setExportOpen(false)
+    } finally { setExporting(false) }
   }
 
   // Filter + sort
@@ -134,12 +167,12 @@ export default function ResultsPage() {
           <h1 className="font-bold text-3xl" style={{ color: 'var(--field-text)', letterSpacing: '-0.02em' }}>Results</h1>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => handleExport('csv')}
+          <button onClick={() => openExport('csv')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
             style={{ background: 'var(--field-raised)', color: 'var(--field-text)', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-xs)', transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
             <Download className="w-4 h-4" strokeWidth={1.75} />CSV
           </button>
-          <button onClick={() => handleExport('xlsx')}
+          <button onClick={() => openExport('xlsx')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
             style={{ background: 'var(--field-raised)', color: 'var(--field-text)', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-xs)', transition: 'all 160ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
             <Download className="w-4 h-4" strokeWidth={1.75} />Excel
@@ -305,6 +338,78 @@ export default function ResultsPage() {
         onConfirm={handleDelete}
         loading={deleting}
       />
+
+      {/* ── Export modal ─────────────────────────────────────────────── */}
+      <Dialog open={exportOpen} onOpenChange={o => { if (!exporting) setExportOpen(o) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export {exportFormat === 'xlsx' ? 'Excel' : 'CSV'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 pt-1">
+            <p className="text-sm mb-3" style={{ color: 'var(--field-muted)' }}>
+              Choose which categories to include. The file will be named{' '}
+              <code className="text-xs font-mono px-1.5 py-0.5 rounded"
+                style={{ background: 'var(--field-raised)', color: 'var(--field-text)' }}>
+                {new Date().toISOString().split('T')[0]}-results.{exportFormat === 'xlsx' ? 'xlsx' : 'csv'}
+              </code>
+            </p>
+
+            {/* Select all row */}
+            <label
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer font-semibold"
+              style={{ transition: 'background 120ms' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--field-raised)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded shrink-0"
+                style={{ accentColor: 'var(--field-orange)' }}
+                checked={categories.length > 0 && exportCats.size === categories.length}
+                onChange={() => {
+                  if (exportCats.size === categories.length) setExportCats(new Set())
+                  else setExportCats(new Set(categories.map(c => c.category_id)))
+                }}
+              />
+              <span className="text-sm" style={{ color: 'var(--field-text)' }}>All categories</span>
+              <span className="ml-auto text-xs tabular-nums" style={{ color: 'var(--field-muted)' }}>
+                {exportCats.size} / {categories.length} selected
+              </span>
+            </label>
+
+            {/* Hairline divider */}
+            <div className="my-1 h-px" style={{ background: 'var(--field-border)' }} />
+
+            {/* Per-category rows */}
+            {categories.map(c => (
+              <label key={c.category_id}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer"
+                style={{ transition: 'background 120ms' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--field-raised)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded shrink-0"
+                  style={{ accentColor: 'var(--field-orange)' }}
+                  checked={exportCats.has(c.category_id)}
+                  onChange={() => toggleExportCat(c.category_id)}
+                />
+                <span className="text-sm font-medium" style={{ color: 'var(--field-text)' }}>
+                  {c.category_name}
+                </span>
+              </label>
+            ))}
+
+            <div className="flex justify-end gap-2 pt-3">
+              <Button type="button" variant="outline" onClick={() => setExportOpen(false)} disabled={exporting}>
+                Cancel
+              </Button>
+              <Button type="button" disabled={exporting || exportCats.size === 0} onClick={handleExport}>
+                {exporting ? 'Exporting…' : `Export ${exportFormat === 'xlsx' ? 'Excel' : 'CSV'}`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
